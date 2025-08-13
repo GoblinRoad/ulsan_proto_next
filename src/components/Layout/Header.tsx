@@ -1,5 +1,5 @@
 import React from 'react';
-import { Coins, Bell } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 
 const Header: React.FC = () => {
@@ -23,9 +23,6 @@ const Header: React.FC = () => {
               <Coins className="w-4 h-4 text-white" />
               <span className="text-white font-bold text-sm">{state.user.totalCoins}</span>
             </div>
-            <button className="p-2 text-gray-600 hover:text-blue-500 transition-colors">
-              <Bell className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>
