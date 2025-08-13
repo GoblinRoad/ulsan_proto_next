@@ -3,7 +3,6 @@ import { useApp } from '../../contexts/AppContext';
 import WelcomeBanner from './components/WelcomeBanner';
 import StatsOverview from './components/StatsOverview';
 import RecommendedCourses from './components/RecommendedCourses';
-import RecentActivity from './components/RecentActivity';
 
 const Home: React.FC = () => {
   const { state } = useApp();
@@ -15,8 +14,7 @@ const Home: React.FC = () => {
         visitedSpots={state.user.visitedSpots}
         totalSpots={state.touristSpots.length}
       />
-      <RecommendedCourses touristSpots={state.touristSpots} />
-      <RecentActivity touristSpots={state.touristSpots} />
+      <RecommendedCourses />
     </div>
   );
 };
