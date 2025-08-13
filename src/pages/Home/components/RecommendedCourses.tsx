@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronRight, MapPin, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const RecommendedCourses: React.FC = () => {
   const courses = [
@@ -36,9 +37,9 @@ const RecommendedCourses: React.FC = () => {
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-gray-800">인기 코스</h3>
-        <button className="text-sm text-blue-500 font-medium hover:text-blue-600">
+        <Link to="/popular" className="text-sm text-blue-500 font-medium hover:text-blue-600">
           전체보기 <ChevronRight className="w-4 h-4 inline-block" />
-        </button>
+        </Link>
       </div>
       
       <div className="space-y-3">

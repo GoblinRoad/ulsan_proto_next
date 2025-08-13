@@ -7,6 +7,7 @@ import Map from './pages/Map/Map';
 import CheckIn from './pages/CheckIn/CheckIn';
 import Rewards from './pages/Rewards/Rewards';
 import Profile from './pages/Profile/Profile';
+import PopularCourses from './pages/PopularCourses/PopularCourses';
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
               <Route path="/checkin/:spotId" element={<CheckIn />} />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/popular" element={<PopularCourses />} />
             </Routes>
           </Layout>
         </div>
