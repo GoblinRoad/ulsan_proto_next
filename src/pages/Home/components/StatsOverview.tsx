@@ -1,29 +1,18 @@
 import React from 'react';
-import { Coins, MapPin, Target, Zap } from 'lucide-react';
+import { MapPin, Target } from 'lucide-react';
 
 interface StatsOverviewProps {
-  totalCoins: number;
   visitedSpots: number;
   totalSpots: number;
-  currentStreak: number;
 }
 
 const StatsOverview: React.FC<StatsOverviewProps> = ({
-  totalCoins,
   visitedSpots,
-  totalSpots,
-  currentStreak
+  totalSpots
 }) => {
   const progress = (visitedSpots / totalSpots) * 100;
 
   const stats = [
-    {
-      icon: Coins,
-      label: '보유 코인',
-      value: totalCoins.toLocaleString(),
-      color: 'from-yellow-400 to-orange-400',
-      bgColor: 'bg-yellow-50'
-    },
     {
       icon: MapPin,
       label: '방문 완료',
@@ -37,13 +26,6 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({
       value: `${Math.round(progress)}%`,
       color: 'from-blue-400 to-cyan-400',
       bgColor: 'bg-blue-50'
-    },
-    {
-      icon: Zap,
-      label: '연속 방문',
-      value: `${currentStreak}일`,
-      color: 'from-purple-400 to-pink-400',
-      bgColor: 'bg-purple-50'
     }
   ];
 
