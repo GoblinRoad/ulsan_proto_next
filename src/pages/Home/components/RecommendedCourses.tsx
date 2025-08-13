@@ -1,18 +1,7 @@
 import React from 'react';
 import { ChevronRight, MapPin, Clock } from 'lucide-react';
 
-interface TouristSpot {
-  id: string;
-  name: string;
-  category: 'famous' | 'hidden';
-  visited: boolean;
-}
-
-interface RecommendedCoursesProps {
-  touristSpots: TouristSpot[];
-}
-
-const RecommendedCourses: React.FC<RecommendedCoursesProps> = ({ touristSpots }) => {
+const RecommendedCourses: React.FC = () => {
   const courses = [
     {
       id: 1,
@@ -46,7 +35,7 @@ const RecommendedCourses: React.FC<RecommendedCoursesProps> = ({ touristSpots })
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-gray-800">추천 코스</h3>
+        <h3 className="text-lg font-bold text-gray-800">인기 코스</h3>
         <button className="text-sm text-blue-500 font-medium hover:text-blue-600">
           전체보기 <ChevronRight className="w-4 h-4 inline-block" />
         </button>

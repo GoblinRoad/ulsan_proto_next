@@ -19,7 +19,7 @@ const Header: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-400 px-3 py-1.5 rounded-full coin-spin">
+            <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-400 px-3 py-1.5 rounded-full">
               <Coins className="w-4 h-4 text-white" />
               <span className="text-white font-bold text-sm">{state.user.totalCoins}</span>
             </div>
