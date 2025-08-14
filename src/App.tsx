@@ -8,6 +8,8 @@ import CheckIn from './pages/CheckIn/CheckIn';
 import Rewards from './pages/Rewards/Rewards';
 import Profile from './pages/Profile/Profile';
 import PopularCourses from './pages/PopularCourses/PopularCourses';
+import PopularCourseDetail from './pages/PopularCourses/PopularCourseDetail';
+import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
 function App() {
@@ -15,6 +17,7 @@ function App() {
     <AppProvider>
       <Router>
         <div className="App">
+          <ScrollToTop />
           <Layout>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -23,6 +26,7 @@ function App() {
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/popular" element={<PopularCourses />} />
+              <Route path="/popular/:id" element={<PopularCourseDetail />} />
             </Routes>
           </Layout>
         </div>
