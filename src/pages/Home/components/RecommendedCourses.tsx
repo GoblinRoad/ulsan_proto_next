@@ -6,29 +6,26 @@ const RecommendedCourses: React.FC = () => {
   const courses = [
     {
       id: 1,
-      name: '고래와 함께하는 울산 여행',
-      description: '장생포 고래문화마을 → 고래생태체험관 → 일산해수욕장',
-      duration: '4-5시간',
-      spots: 3,
-      difficulty: '쉬움',
+      name: '선사와 명주 여행',
+      description: '반구대암각화 → 천전리각석 → 트레비어 → 유진목장 → 언양시장 → 복순도가 → 석남사',
+      duration: '전일',
+      spots: 7,
       color: 'from-blue-400 to-cyan-400'
     },
     {
       id: 2,
-      name: '자연 속 힐링 코스',
-      description: '태화강 국가정원 → 울산대공원 → 신불산 폭포',
-      duration: '6-7시간',
-      spots: 4,
-      difficulty: '보통',
+      name: '웰니스&웰빙여행',
+      description: '태화강국가정원 → 간절곶 → Fe01 → 진하해수욕장(명선도) → 남창시장 → 외고산옹기마을 → 대운산 치유의 숲',
+      duration: '전일',
+      spots: 7,
       color: 'from-green-400 to-emerald-400'
     },
     {
       id: 3,
-      name: '숨은 보석 탐방',
-      description: '영남알프스 → 울산테마식물수목원 → 간절곶',
-      duration: '전일',
+      name: '자연과 예술여행',
+      description: '장생포고래문화특구 → 태화강국가정원 → 태화루 → 중구 문화의 거리 → 울산시립미술관',
+      duration: '반일',
       spots: 5,
-      difficulty: '어려움',
       color: 'from-purple-400 to-pink-400'
     }
   ];
@@ -70,13 +67,7 @@ const RecommendedCourses: React.FC = () => {
                   <span>{course.spots}곳</span>
                 </div>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                course.difficulty === '쉬움' ? 'bg-green-100 text-green-600' :
-                course.difficulty === '보통' ? 'bg-yellow-100 text-yellow-600' :
-                'bg-red-100 text-red-600'
-              }`}>
-                {course.difficulty}
-              </span>
+              <span />
             </div>
           </div>
         ))}
