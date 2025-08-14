@@ -1,10 +1,8 @@
 import React from 'react';
-import { Bell, Share2, HelpCircle, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { HelpCircle, Settings as SettingsIcon, LogOut } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const menuItems = [
-    { icon: Bell, label: '알림 설정', action: () => {} },
-    { icon: Share2, label: '친구 초대', action: () => {} },
     { icon: HelpCircle, label: '도움말', action: () => {} },
     { icon: SettingsIcon, label: '설정', action: () => {} },
     { icon: LogOut, label: '로그아웃', action: () => {} }
