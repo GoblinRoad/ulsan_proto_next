@@ -77,7 +77,7 @@ const useTourApi = (): UseTourApiResult => {
                 throw new Error('관광공사 API 키가 설정되지 않았습니다.');
             }
 
-            const baseUrl = 'http://apis.data.go.kr/B551011/KorService2/areaBasedList2';
+            const baseUrl = 'https://apis.data.go.kr/B551011/KorService2/areaBasedList2';
 
             // 모든 구의 데이터를 병렬로 가져오기
             const promises = Object.values(SIGUNGU_CODES).map(async (lDongSignguCd) => {
