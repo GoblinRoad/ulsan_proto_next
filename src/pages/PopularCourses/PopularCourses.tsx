@@ -23,7 +23,7 @@ const PopularCourses: React.FC = () => {
         <h2 className="text-xl font-bold text-gray-800">인기 코스</h2>
       </div>
       <div className="bg-white p-4">
-        <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center justify-start mb-4">
           <span className="text-sm text-gray-500 font-medium">총 {courses.length}개</span>
         </div>
 
