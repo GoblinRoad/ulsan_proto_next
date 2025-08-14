@@ -78,7 +78,7 @@ const PopularCourseDetail: React.FC = () => {
     return { lat: sum.lat / mockSpots.length, lng: sum.lng / mockSpots.length };
   }, [mockSpots]);
 
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [expandedIndices, setExpandedIndices] = useState<Set<number>>(new Set());
   const [etaText, setEtaText] = useState<string | null>(null);
 
   // 데모: 카카오 내비 다중경유지 응답의 vertexes 형식과 동일하게 폴리라인 경로 목데이터 구성
@@ -139,7 +139,15 @@ const PopularCourseDetail: React.FC = () => {
             <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
               <button
                 className="w-full text-left"
-                onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                onClick={() => {
+                  const newExpandedIndices = new Set(expandedIndices);
+                  if (newExpandedIndices.has(idx)) {
+                    newExpandedIndices.delete(idx);
+                  } else {
+                    newExpandedIndices.add(idx);
+                  }
+                  setExpandedIndices(newExpandedIndices);
+                }}
               >
                 <div className="flex items-center">
                   <img src={spot.image} alt={spot.name} className="w-20 h-20 object-cover" />
@@ -149,7 +157,7 @@ const PopularCourseDetail: React.FC = () => {
                   </div>
                 </div>
               </button>
-              {expandedIdx === idx && (
+              {expandedIndices.has(idx) && (
                 <div className="p-3 border-t text-sm text-gray-700 bg-gray-50">
                   {spot.description}
                 </div>
