@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './contexts/AppContext';
 import Layout from './components/Layout/Layout';
@@ -22,7 +21,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/map" element={<Map />} />
-              <Route path="/checkin/:spotId" element={<CheckIn />} />
+              <Route path="/checkin" element={<CheckIn />} />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/popular" element={<PopularCourses />} />
