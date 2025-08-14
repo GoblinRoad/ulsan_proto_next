@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
       {!isCheckInPage && <Header />}
-      <main className={`${!isCheckInPage ? 'pt-16 pb-20' : ''} min-h-screen`}>
+      <main className={`${!isCheckInPage ? 'pt-20 pb-20' : ''} min-h-screen`}>
         {children}
       </main>
       {!isCheckInPage && <Navigation />}

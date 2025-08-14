@@ -12,10 +12,8 @@ const Home: React.FC = () => {
     <div className="max-w-md mx-auto px-4 space-y-6 animate-slideUp">
       <WelcomeBanner user={state.user} />
       <StatsOverview 
-        totalCoins={state.user.totalCoins}
         visitedSpots={state.user.visitedSpots}
         totalSpots={state.touristSpots.length}
-        currentStreak={state.currentStreak}
       />
       <QuickActions />
       <RecommendedCourses touristSpots={state.touristSpots} />
