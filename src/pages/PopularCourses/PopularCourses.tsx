@@ -1,64 +1,39 @@
 import React from 'react';
-import { MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { popularCourses } from './courses';
 
 const PopularCourses: React.FC = () => {
-  const courses = [
-    {
-      id: 1,
-      name: '선사와 명주 여행',
-      description: ['반구대암각화', '천전리각석', '트레비어', '유진목장', '언양시장', '복순도가', '석남사'].join(' → '),
-      duration: '전일',
-      spots: 7,
-      color: 'from-blue-400 to-cyan-400'
-    },
-    {
-      id: 2,
-      name: '웰니스&웰빙여행',
-      description: ['태화강국가정원', '간절곶', 'Fe01', '진하해수욕장(명선도)', '남창시장', '외고산옹기마을', '대운산 치유의 숲'].join(' → '),
-      duration: '전일',
-      spots: 7,
-      color: 'from-green-400 to-emerald-400'
-    },
-    {
-      id: 3,
-      name: '자연과 예술여행',
-      description: ['장생포고래문화특구', '태화강국가정원', '태화루', '중구 문화의 거리', '울산시립미술관'].join(' → '),
-      duration: '반일',
-      spots: 5,
-      color: 'from-purple-400 to-pink-400'
-    },
-    {
-      id: 4,
-      name: '쪽빛바다여행',
-      description: ['울산대교전망대', '대왕암공원', '출렁다리', '일산해수욕장', '주전몽돌해변'].join(' → '),
-      duration: '반일',
-      spots: 5,
-      color: 'from-cyan-400 to-blue-500'
-    },
-    {
-      id: 5,
-      name: '독립역사여행',
-      description: ['박상진의사생가', '달천철장', '강동몽돌해변', '보성학교전시관'].join(' → '),
-      duration: '반일',
-      spots: 4,
-      color: 'from-yellow-400 to-orange-400'
-    }
-  ];
+  const navigate = useNavigate();
+  const courses = popularCourses.map(c => ({
+    id: c.id,
+    name: c.name,
+    description: c.items.join(' → '),
+    duration: c.duration,
+    spots: c.items.length,
+    color: c.color
+  }));
 
   return (
     <div className="max-w-md mx-auto px-4 space-y-6 animate-slideUp">
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">인기 코스</h2>
+      <div className="flex items-center space-x-3 pt-2">
+        <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-100">
+          <ArrowLeft className="w-5 h-5 text-gray-700" />
+        </button>
+        <h2 className="text-xl font-bold text-gray-800">인기 코스</h2>
+      </div>
+      <div className="bg-white p-4">
+        <div className="flex items-center justify-end mb-4">
           <span className="text-sm text-gray-500 font-medium">총 {courses.length}개</span>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 select-none">
           {courses.map((course, index) => (
-            <div
+            <Link
               key={course.id}
-              className="border border-gray-100 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer animate-slideUp"
+              className="rounded-lg p-4 transition-all cursor-pointer animate-slideUp bg-transparent outline-none focus:outline-none focus-visible:outline-none active:outline-none ring-0 focus:ring-0 active:ring-0 hover:shadow-none select-none"
               style={{ animationDelay: `${index * 0.1}s` }}
+              to={`/popular/${course.id}`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
@@ -83,7 +58,7 @@ const PopularCourses: React.FC = () => {
                 </div>
                 <span />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
