@@ -1,34 +1,52 @@
 import React from 'react';
-import { ChevronRight, MapPin, Clock } from 'lucide-react';
+import { MapPin, Clock } from 'lucide-react';
 
 const PopularCourses: React.FC = () => {
   const courses = [
     {
       id: 1,
-      name: '고래와 함께하는 울산 여행',
-      description: '장생포 고래문화마을 → 고래생태체험관 → 일산해수욕장',
-      duration: '4-5시간',
-      spots: 3,
-      difficulty: '쉬움',
+      name: '선사와 명주 여행',
+      description: ['반구대암각화', '천전리각석', '트레비어', '유진목장', '언양시장', '복순도가', '석남사'].join(' → '),
+      duration: '전일',
+      spots: 7,
+      difficulty: '어려움',
       color: 'from-blue-400 to-cyan-400'
     },
     {
       id: 2,
-      name: '자연 속 힐링 코스',
-      description: '태화강 국가정원 → 울산대공원 → 신불산 폭포',
-      duration: '6-7시간',
-      spots: 4,
+      name: '웰니스&웰빙여행',
+      description: ['태화강국가정원', '간절곶', 'Fe01', '진하해수욕장(명선도)', '남창시장', '외고산옹기마을', '대운산 치유의 숲'].join(' → '),
+      duration: '전일',
+      spots: 7,
       difficulty: '보통',
       color: 'from-green-400 to-emerald-400'
     },
     {
       id: 3,
-      name: '숨은 보석 탐방',
-      description: '영남알프스 → 울산테마식물수목원 → 간절곶',
-      duration: '전일',
+      name: '자연과 예술여행',
+      description: ['장생포고래문화특구', '태화강국가정원', '태화루', '중구 문화의 거리', '울산시립미술관'].join(' → '),
+      duration: '반일',
       spots: 5,
-      difficulty: '어려움',
+      difficulty: '쉬움',
       color: 'from-purple-400 to-pink-400'
+    },
+    {
+      id: 4,
+      name: '쪽빛바다여행',
+      description: ['울산대교전망대', '대왕암공원', '출렁다리', '일산해수욕장', '주전몽돌해변'].join(' → '),
+      duration: '반일',
+      spots: 5,
+      difficulty: '보통',
+      color: 'from-cyan-400 to-blue-500'
+    },
+    {
+      id: 5,
+      name: '독립역사여행',
+      description: ['박상진의사생가', '달천철장', '강동몽돌해변', '보성학교전시관'].join(' → '),
+      duration: '반일',
+      spots: 4,
+      difficulty: '쉬움',
+      color: 'from-yellow-400 to-orange-400'
     }
   ];
 
