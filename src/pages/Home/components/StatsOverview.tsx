@@ -25,7 +25,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({
       label: '달성률',
       value: `${Math.round(progress)}%`,
       color: 'from-blue-400 to-cyan-400',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-sky-100'
     }
   ];
 
