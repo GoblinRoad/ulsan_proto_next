@@ -41,15 +41,9 @@ const RecommendedCourses: React.FC = () => {
             </div>
             
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{course.duration}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <MapPin className="w-3 h-3" />
-                  <span>{course.spots}곳</span>
-                </div>
+              <div className="flex items-center space-x-1">
+                <MapPin className="w-3 h-3" />
+                <span>{course.spots}곳</span>
               </div>
               <span />
             </div>
