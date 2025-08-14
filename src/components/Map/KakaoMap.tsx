@@ -17,6 +17,7 @@ interface KakaoMapProps {
   markers: MarkerInfo[];
   path?: { lat: number; lng: number }[]; // 경로 폴리라인
   height?: number;
+  showOrder?: boolean; // 마커에 1..N 순번 표시
 }
 
 function loadKakaoScript(appKey?: string): Promise<void> {
@@ -47,7 +48,7 @@ function loadKakaoScript(appKey?: string): Promise<void> {
   });
 }
 
-const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220 }) => {
+const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -55,6 +56,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
     let map: any;
     let kakaoMarkers: any[] = [];
     let polyline: any | null = null;
+    let overlays: any[] = [];
 
     loadKakaoScript(appKey)
       .then(() => {
@@ -66,12 +68,24 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
         };
         map = new kakao.maps.Map(containerRef.current, options);
 
-        kakaoMarkers = markers.map(m => {
+        kakaoMarkers = markers.map((m, idx) => {
           const marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(m.lat, m.lng),
             title: m.title || ''
           });
           marker.setMap(map);
+
+          if (showOrder) {
+            const content = `\n              <div style="position:relative;transform:translate(-50%, -120%);">\n                <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:#2563eb;color:#fff;font-size:12px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,0.2);">${idx + 1}</div>\n              </div>\n            `;
+            const overlay = new kakao.maps.CustomOverlay({
+              position: new kakao.maps.LatLng(m.lat, m.lng),
+              content,
+              yAnchor: 0,
+              zIndex: 10
+            });
+            overlay.setMap(map);
+            overlays.push(overlay);
+          }
           return marker;
         });
 
@@ -104,9 +118,10 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
     return () => {
       kakaoMarkers.forEach(m => m.setMap(null));
       if (polyline) polyline.setMap(null);
+      overlays.forEach(o => o.setMap(null));
       map = null;
     };
-  }, [center.lat, center.lng, markers, path]);
+  }, [center.lat, center.lng, markers, path, showOrder]);
 
   const appKey = (import.meta.env.REACT_APP_KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAO_MAP_APP_KEY) as string | undefined;
   const showFallback = !appKey;

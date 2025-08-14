@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { popularCourses } from './courses';
 import { ArrowLeft, MapPin, Clock } from 'lucide-react';
 import KakaoMap from '../../components/Map/KakaoMap';
+import { fetchKakaoDirections, formatDurationHM } from '../../services/kakaoNavi';
 
 interface SpotDetail {
   name: string;
@@ -78,14 +79,26 @@ const PopularCourseDetail: React.FC = () => {
   }, [mockSpots]);
 
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [etaText, setEtaText] = useState<string | null>(null);
 
   // 데모: 카카오 내비 다중경유지 응답의 vertexes 형식과 동일하게 폴리라인 경로 목데이터 구성
   // 실제 연동 시, API 응답의 roads[].vertexes를 (x,y)쌍으로 끊어 lat/lng로 변환하여 전달
   const mockPath = useMemo(() => {
-    // 간단히 출발지~첫번째~두번째 지점 등 일부만 직선 보간
-    if (mockSpots.length < 2) return [] as { lat: number; lng: number }[];
-    const pts = mockSpots.slice(0, Math.min(5, mockSpots.length));
-    return pts.map(s => ({ lat: s.lat, lng: s.lng }));
+    // 모든 지점을 순서대로 연결
+    return mockSpots.map(s => ({ lat: s.lat, lng: s.lng }));
+  }, [mockSpots]);
+
+  useEffect(() => {
+    (async () => {
+      if (mockSpots.length < 2) return;
+      const origin = { x: mockSpots[0].lng, y: mockSpots[0].lat, name: mockSpots[0].name };
+      const destination = { x: mockSpots[mockSpots.length - 1].lng, y: mockSpots[mockSpots.length - 1].lat, name: mockSpots[mockSpots.length - 1].name };
+      const waypoints = mockSpots.slice(1, -1).map(s => ({ x: s.lng, y: s.lat, name: s.name }));
+      const summary = await fetchKakaoDirections({ origin, destination, waypoints, priority: 'TIME', summary: true });
+      if (summary) {
+        setEtaText(formatDurationHM(summary.duration));
+      }
+    })();
   }, [mockSpots]);
 
   return (
@@ -104,6 +117,7 @@ const PopularCourseDetail: React.FC = () => {
           markers={mockSpots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
           path={mockPath}
           height={260}
+          showOrder
         />
       </div>
 
@@ -111,12 +125,14 @@ const PopularCourseDetail: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3 text-sm text-gray-600">
             <Clock className="w-4 h-4" />
-            <span>{course.duration}</span>
+            <span>{etaText ? `총 최단 이동 시간 (자동차): ${etaText}` : ''}</span>
           </div>
           <div className={`w-10 h-10 bg-gradient-to-r ${course.color} rounded-lg flex items-center justify-center`}>
             <MapPin className="w-5 h-5 text-white" />
           </div>
         </div>
+
+
 
         <div className="space-y-3">
           {mockSpots.map((spot, idx) => (
