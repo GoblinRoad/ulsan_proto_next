@@ -91,10 +91,13 @@ const PopularCourseDetail: React.FC = () => {
   useEffect(() => {
     (async () => {
       if (mockSpots.length < 2) return;
+      console.log('KAKAOMOBILITY_REST_KEY:', import.meta.env.KAKAOMOBILITY_REST_KEY);
       const origin = { x: mockSpots[0].lng, y: mockSpots[0].lat, name: mockSpots[0].name };
       const destination = { x: mockSpots[mockSpots.length - 1].lng, y: mockSpots[mockSpots.length - 1].lat, name: mockSpots[mockSpots.length - 1].name };
       const waypoints = mockSpots.slice(1, -1).map(s => ({ x: s.lng, y: s.lat, name: s.name }));
+      console.log('API 호출 시작:', { origin, destination, waypoints });
       const summary = await fetchKakaoDirections({ origin, destination, waypoints, priority: 'TIME', summary: true });
+      console.log('API 응답:', summary);
       if (summary) {
         setEtaText(formatDurationHM(summary.duration));
       }

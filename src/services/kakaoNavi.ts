@@ -20,8 +20,12 @@ export interface DirectionsSummary {
 }
 
 export async function fetchKakaoDirections(body: DirectionsRequestBody): Promise<DirectionsSummary | null> {
-  const restKey = import.meta.env.REACT_APP_KAKAOMOBILITY_REST_KEY as string | undefined;
-  if (!restKey) return null;
+  const restKey = import.meta.env.VITE_KAKAOMOBILITY_REST_KEY as string | undefined;
+  console.log('fetchKakaoDirections - restKey:', restKey);
+  if (!restKey) {
+    console.log('restKey가 없습니다');
+    return null;
+  }
   try {
     const res = await fetch('https://apis-navi.kakaomobility.com/v1/waypoints/directions', {
       method: 'POST',
@@ -37,12 +41,20 @@ export async function fetchKakaoDirections(body: DirectionsRequestBody): Promise
         summary: body.summary ?? true,
       }),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.log('API 응답 오류:', res.status, res.statusText);
+      return null;
+    }
     const data = await res.json();
+    console.log('API 응답 데이터:', data);
     const summary = data?.routes?.[0]?.summary;
-    if (!summary) return null;
+    if (!summary) {
+      console.log('summary가 없습니다');
+      return null;
+    }
     return { distance: summary.distance, duration: summary.duration };
-  } catch {
+  } catch (error) {
+    console.log('API 호출 중 오류:', error);
     return null;
   }
 }

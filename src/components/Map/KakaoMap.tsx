@@ -52,7 +52,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const appKey = (import.meta.env.REACT_APP_KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAO_MAP_APP_KEY) as string | undefined;
+    const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
     let map: any;
     let kakaoMarkers: any[] = [];
     let polyline: any | null = null;
@@ -123,14 +123,14 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
     };
   }, [center.lat, center.lng, markers, path, showOrder]);
 
-  const appKey = (import.meta.env.REACT_APP_KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAO_MAP_APP_KEY) as string | undefined;
+        const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
   const showFallback = !appKey;
 
   return (
     <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height }}>
       {showFallback ? (
         <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">
-          지도를 불러오려면 REACT_APP_KAKAOMAP_API_KEY 또는 VITE_KAKAO_MAP_APP_KEY를 설정해주세요.
+          지도를 불러오려면 KAKAOMAP_API_KEY 또는 VITE_KAKAOMAP_API_KEY를 설정해주세요.
         </div>
       ) : (
         <div ref={containerRef} className="w-full h-full" />
