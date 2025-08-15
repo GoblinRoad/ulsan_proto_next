@@ -7,7 +7,7 @@ const RecommendedCourses: React.FC = () => {
   const courses = popularCourses.slice(0, 3).map(c => ({
     id: c.id,
     name: c.name,
-    description: c.items.join(' → '),
+    description: c.description,
     duration: c.duration,
     spots: c.items.length,
     color: c.color

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { popularCourses } from './courses';
-import { ArrowLeft, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, Loader2 } from 'lucide-react';
 import KakaoMap from '../../components/Map/KakaoMap';
 import { fetchKakaoDirections, fetchKakaoCarDirections, formatDurationHM } from '../../services/kakaoNavi';
 import { getCourseSpotsInfoWithCache, CourseSpotInfo } from '../../services/courseSpotService';
@@ -169,19 +169,41 @@ const PopularCourseDetail: React.FC = () => {
         <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-100">
           <ArrowLeft className="w-5 h-5 text-gray-700" />
         </button>
-        <h2 className="text-xl font-bold text-gray-800">{course.name}</h2>
+        {loading ? (
+          <div className="flex-1">
+            <div className="h-6 bg-gray-200 animate-pulse rounded mb-2 w-48"></div>
+            <div className="h-4 bg-gray-200 animate-pulse rounded w-32"></div>
+          </div>
+        ) : (
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">{course.name}</h2>
+            <p className="text-sm text-gray-600 mt-1">{course.description}</p>
+          </div>
+        )}
       </div>
 
-      <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height: 260 }}>
-        <div id="kakao-map-container" ref={undefined} />
-        <KakaoMap
-          center={center}
-          markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
-          path={path}
-          height={260}
-          showOrder
-        />
-      </div>
+      {loading ? (
+        <div className="w-full rounded-xl border border-gray-100 bg-gray-50" style={{ height: 260 }}>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">코스 정보 로딩 중...</h3>
+              <p className="text-gray-500 text-sm">울산 관광지 데이터를 가져오고 있습니다</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height: 260 }}>
+          <div id="kakao-map-container" ref={undefined} />
+          <KakaoMap
+            center={center}
+            markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
+            path={path}
+            height={260}
+            showOrder
+          />
+        </div>
+      )}
 
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-4">
@@ -193,6 +215,22 @@ const PopularCourseDetail: React.FC = () => {
             <MapPin className="w-5 h-5 text-white" />
           </div>
         </div>
+
+        {loading ? (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+              <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+              <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-semibold text-gray-800 mb-2">코스 소개</h3>
+            <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
+          </div>
+        )}
 
 
 
