@@ -43,8 +43,6 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
   }
 
   try {
-    console.log(`"${spotName}" 검색 시작 - API 키:`, serviceKey ? '설정됨' : '없음');
-    
     // 검색 API 호출 (searchKeyword2) - contentTypeId 제거하여 모든 유형 검색
     const searchParams = new URLSearchParams({
       serviceKey: decodeURIComponent(serviceKey),
@@ -59,7 +57,6 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
     });
 
     const searchUrl = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2?${searchParams}`;
-    console.log(`"${spotName}" API URL:`, searchUrl);
     
     const searchResponse = await fetch(searchUrl);
 
@@ -69,20 +66,14 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
 
     const searchData = await searchResponse.json();
     
-    console.log(`"${spotName}" API 응답:`, searchData);
-    
     if (searchData.response.header.resultCode !== '0000') {
-      console.error(`"${spotName}" API 오류:`, searchData.response.header.resultMsg);
       throw new Error(`검색 API 오류: ${searchData.response.header.resultMsg}`);
     }
 
     const items = searchData.response.body.items?.item;
     if (!items || items.length === 0) {
-      console.log(`"${spotName}" 검색 결과 없음`);
       return null;
     }
-
-    console.log(`"${spotName}" 검색 결과:`, items.length, '개');
 
     // 가장 정확한 매칭 찾기 (더 유연한 매칭)
     const bestMatch = items.find((item: any) => {
@@ -212,7 +203,6 @@ export async function getCourseSpotsInfo(courseName: string): Promise<CourseSpot
 
   const results = await Promise.all(spotPromises);
   const validResults = results.filter((spot): spot is CourseSpotInfo => spot !== null);
-  console.log(`"${courseName}" 코스: ${spotNames.length}개 중 ${validResults.length}개 성공`);
   return validResults;
 }
 

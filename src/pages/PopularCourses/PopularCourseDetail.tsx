@@ -3,8 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { popularCourses } from './courses';
 import { ArrowLeft, MapPin, Clock } from 'lucide-react';
 import KakaoMap from '../../components/Map/KakaoMap';
-import { fetchKakaoDirections, formatDurationHM } from '../../services/kakaoNavi';
+import { fetchKakaoDirections, fetchKakaoCarDirections, formatDurationHM } from '../../services/kakaoNavi';
 import { getCourseSpotsInfoWithCache, CourseSpotInfo } from '../../services/courseSpotService';
+
+// HTML 태그를 파싱하여 줄바꿈으로 변환하는 함수
+const parseHtmlText = (text: string): string => {
+  if (!text) return '';
+  return text
+    .replace(/<br\s*\/?>/gi, '\n')  // <br> 태그를 줄바꿈으로 변환
+    .replace(/<[^>]*>/g, '')       // 다른 HTML 태그 제거
+    .trim();
+};
 
 interface SpotDetail {
   name: string;
@@ -39,6 +48,7 @@ const PopularCourseDetail: React.FC = () => {
   const [etaText, setEtaText] = useState<string | null>(null);
   const [spotsInfo, setSpotsInfo] = useState<CourseSpotInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [accuratePath, setAccuratePath] = useState<{ lat: number; lng: number }[]>([]);
 
   // 실제 API 데이터를 사용하는 spots
   const spots: SpotDetail[] = useMemo(() => {
@@ -65,12 +75,10 @@ const PopularCourseDetail: React.FC = () => {
     return { lat: sum.lat / spots.length, lng: sum.lng / spots.length };
   }, [spots]);
 
-  // 데모: 카카오 내비 다중경유지 응답의 vertexes 형식과 동일하게 폴리라인 경로 목데이터 구성
-  // 실제 연동 시, API 응답의 roads[].vertexes를 (x,y)쌍으로 끊어 lat/lng로 변환하여 전달
-  const mockPath = useMemo(() => {
-    // 모든 지점을 순서대로 연결
-    return spots.map(s => ({ lat: s.lat, lng: s.lng }));
-  }, [spots]);
+  // 정확한 경로만 사용 (자동차 길찾기 API 결과가 있을 때만)
+  const path = useMemo(() => {
+    return accuratePath.length > 0 ? accuratePath : [];
+  }, [accuratePath]);
 
   // API 데이터 로드 (비동기 최적화)
   useEffect(() => {
@@ -114,10 +122,32 @@ const PopularCourseDetail: React.FC = () => {
         const destination = { x: spots[spots.length - 1].lng, y: spots[spots.length - 1].lat, name: spots[spots.length - 1].name };
         const waypoints = spots.slice(1, -1).map(s => ({ x: s.lng, y: s.lat, name: s.name }));
         
-        const summary = await fetchKakaoDirections({ origin, destination, waypoints, priority: 'TIME', summary: true });
+        // 자동차 길찾기 API 사용
+        const directionsData = await fetchKakaoCarDirections(origin, destination, waypoints);
         
-        if (isMounted && summary) {
+        if (isMounted && directionsData) {
+          const summary = directionsData.routes[0].summary;
           setEtaText(formatDurationHM(summary.duration));
+          
+          // 정확한 경로 정보를 path state에 저장
+          const accuratePath: { lat: number; lng: number }[] = [];
+          
+          if (directionsData.routes[0].sections) {
+            directionsData.routes[0].sections.forEach(section => {
+              section.roads.forEach(road => {
+                // vertexes 배열을 lat, lng 쌍으로 변환
+                for (let i = 0; i < road.vertexes.length; i += 2) {
+                  accuratePath.push({
+                    lng: road.vertexes[i],
+                    lat: road.vertexes[i + 1]
+                  });
+                }
+              });
+            });
+          }
+          
+          // 정확한 경로로 업데이트
+          setAccuratePath(accuratePath);
         }
       } catch (error) {
         console.error('경로 계산 실패:', error);
@@ -147,7 +177,7 @@ const PopularCourseDetail: React.FC = () => {
         <KakaoMap
           center={center}
           markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
-          path={mockPath}
+          path={path}
           height={260}
           showOrder
         />
@@ -214,30 +244,30 @@ const PopularCourseDetail: React.FC = () => {
                 </button>
                 {expandedIndices.has(idx) && (
                   <div className="p-3 border-t text-sm text-gray-700 bg-gray-50 space-y-2">
-                    <p>{spot.description}</p>
+                    <p>{parseHtmlText(spot.description)}</p>
                     {spot.address && (
                       <p className="text-gray-600">
-                        <span className="font-medium">주소:</span> {spot.address}
+                        <span className="font-medium">주소:</span> {parseHtmlText(spot.address)}
                       </p>
                     )}
                     {spot.tel && (
                       <p className="text-gray-600">
-                        <span className="font-medium">전화:</span> {spot.tel}
+                        <span className="font-medium">전화:</span> {parseHtmlText(spot.tel)}
                       </p>
                     )}
                     {spot.useTime && (
                       <p className="text-gray-600">
-                        <span className="font-medium">이용시간:</span> {spot.useTime}
+                        <span className="font-medium">이용시간:</span> {parseHtmlText(spot.useTime)}
                       </p>
                     )}
                     {spot.restDate && (
                       <p className="text-gray-600">
-                        <span className="font-medium">휴무일:</span> {spot.restDate}
+                        <span className="font-medium">휴무일:</span> {parseHtmlText(spot.restDate)}
                       </p>
                     )}
                     {spot.parking && (
                       <p className="text-gray-600">
-                        <span className="font-medium">주차:</span> {spot.parking}
+                        <span className="font-medium">주차:</span> {parseHtmlText(spot.parking)}
                       </p>
                     )}
                   </div>
