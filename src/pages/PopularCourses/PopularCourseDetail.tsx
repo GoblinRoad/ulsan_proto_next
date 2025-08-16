@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { popularCourses } from './courses';
 import { ArrowLeft, MapPin, Clock, Loader2 } from 'lucide-react';
+import kakaoLogo from '../../assets/images/kakaotalk_logo_icon.png';
 import KakaoMap from '../../components/Map/KakaoMap';
 import { fetchKakaoDirections, fetchKakaoCarDirections, formatDurationHM } from '../../services/kakaoNavi';
 import { getCourseSpotsInfoWithCache, CourseSpotInfo } from '../../services/courseSpotService';
@@ -13,6 +14,12 @@ const parseHtmlText = (text: string): string => {
     .replace(/<br\s*\/?>/gi, '\n')  // <br> 태그를 줄바꿈으로 변환
     .replace(/<[^>]*>/g, '')       // 다른 HTML 태그 제거
     .trim();
+};
+
+// 카카오맵으로 길찾기 이동하는 함수
+const openKakaoMapNavigation = (lat: number, lng: number, name: string) => {
+  const url = `http://m.map.kakao.com/scheme/route?sp=37.39529,127.11044&ep=${lat},${lng}&by=car`;
+  window.open(url, '_blank');
 };
 
 interface SpotDetail {
@@ -308,6 +315,17 @@ const PopularCourseDetail: React.FC = () => {
                         <span className="font-medium">주차:</span> {parseHtmlText(spot.parking)}
                       </p>
                     )}
+                    
+                    {/* 카카오맵 길찾기 버튼 */}
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <button
+                        onClick={() => openKakaoMapNavigation(spot.lat, spot.lng, spot.name)}
+                        className="flex items-center justify-center w-full bg-yellow-300 hover:bg-yellow-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
+                      >
+                        <img src={kakaoLogo} alt="카카오맵" className="w-5 h-5 mr-2" />
+                        카카오맵으로 길찾기
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
