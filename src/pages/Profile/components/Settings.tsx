@@ -1,11 +1,25 @@
 import React from 'react';
 import { HelpCircle, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Settings: React.FC = () => {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('로그아웃 중 오류:', error);
+    }
+  };
+
   const menuItems = [
     { icon: HelpCircle, label: '도움말', action: () => {} },
     { icon: SettingsIcon, label: '설정', action: () => {} },
-    { icon: LogOut, label: '로그아웃', action: () => {} }
+    { icon: LogOut, label: '로그아웃', action: handleLogout }
   ];
 
   return (
