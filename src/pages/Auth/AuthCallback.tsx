@@ -9,6 +9,32 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // URL fragment에서 OAuth 토큰 처리
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
+        if (accessToken) {
+          // OAuth 토큰이 있으면 Supabase에서 세션 설정
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+
+          if (error) {
+            console.error("Session setting error:", error);
+            navigate("/login");
+            return;
+          }
+
+          if (data.session) {
+            console.log("OAuth 로그인 성공:", data.session.user.email);
+            navigate("/");
+            return;
+          }
+        }
+
+        // 일반적인 세션 확인 (이메일 로그인 등)
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
