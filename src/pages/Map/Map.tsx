@@ -4,6 +4,7 @@ import MapView from './components/MapView';
 import FilterTabs from './components/FilterTabs';
 import DistrictFilterTabs from './components/DistrictFilterTabs';
 import SpotList from './components/SpotList';
+import SearchInput from './components/SearchInput';
 import useTourApi from '../../hooks/useTourApi';
 import { CategoryFilter, DistrictFilter, CategoryCounts, SpotCounts } from '../../types/tourist';
 
@@ -12,29 +13,55 @@ const Map: React.FC = () => {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
   const [districtFilter, setDistrictFilter] = useState<DistrictFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // 두 단계 필터링된 관광지
+  // 검색어로 필터링하는 함수
+  const searchFilter = (spot: any, term: string) => {
+    if (!term) return true;
+
+    const searchText = term.toLowerCase().trim();
+    return (
+        spot.name.toLowerCase().includes(searchText) ||
+        spot.address.toLowerCase().includes(searchText) ||
+        spot.description.toLowerCase().includes(searchText)
+    );
+  };
+
+  // 세 단계 필터링된 관광지 (검색 + 구별 + 카테고리)
   const filteredSpots = useMemo(() => {
     let filtered = spots;
 
-    // 1단계: 구별 필터링
+    // 1단계: 검색어 필터링
+    if (searchTerm) {
+      filtered = filtered.filter(spot => searchFilter(spot, searchTerm));
+    }
+
+    // 2단계: 구별 필터링
     if (districtFilter !== 'all') {
       filtered = filtered.filter(spot => spot.district === districtFilter);
     }
 
-    // 2단계: 카테고리 필터링
+    // 3단계: 카테고리 필터링
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(spot => spot.category === categoryFilter);
     }
 
     return filtered;
-  }, [spots, districtFilter, categoryFilter]);
+  }, [spots, searchTerm, districtFilter, categoryFilter]);
 
-  // 구별 관광지 개수 계산 (카테고리 필터 적용)
+  // 구별 관광지 개수 계산 (검색어 + 카테고리 필터 적용)
   const spotCounts: SpotCounts = useMemo(() => {
+    let baseFiltered = spots;
+
+    // 검색어 필터 적용
+    if (searchTerm) {
+      baseFiltered = baseFiltered.filter(spot => searchFilter(spot, searchTerm));
+    }
+
+    // 카테고리 필터 적용
     const categoryFiltered = categoryFilter === 'all'
-        ? spots
-        : spots.filter(spot => spot.category === categoryFilter);
+        ? baseFiltered
+        : baseFiltered.filter(spot => spot.category === categoryFilter);
 
     return {
       all: categoryFiltered.length,
@@ -44,13 +71,21 @@ const Map: React.FC = () => {
       buk: categoryFiltered.filter(spot => spot.district === 'buk').length,
       ulju: categoryFiltered.filter(spot => spot.district === 'ulju').length,
     };
-  }, [spots, categoryFilter]);
+  }, [spots, searchTerm, categoryFilter]);
 
-  // 카테고리별 관광지 개수 계산 (구별 필터 적용)
+  // 카테고리별 관광지 개수 계산 (검색어 + 구별 필터 적용)
   const categoryCounts: CategoryCounts = useMemo(() => {
+    let baseFiltered = spots;
+
+    // 검색어 필터 적용
+    if (searchTerm) {
+      baseFiltered = baseFiltered.filter(spot => searchFilter(spot, searchTerm));
+    }
+
+    // 구별 필터 적용
     const districtFiltered = districtFilter === 'all'
-        ? spots
-        : spots.filter(spot => spot.district === districtFilter);
+        ? baseFiltered
+        : baseFiltered.filter(spot => spot.district === districtFilter);
 
     return {
       all: districtFiltered.length,
@@ -65,7 +100,17 @@ const Map: React.FC = () => {
       음식: districtFiltered.filter(spot => spot.category === '음식').length,
       추천코스: districtFiltered.filter(spot => spot.category === '추천코스').length,
     };
-  }, [spots, districtFilter]);
+  }, [spots, searchTerm, districtFilter]);
+
+  // 검색어가 있을 때 필터 초기화 함수
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+    // 검색어가 입력되면 필터를 초기화하여 모든 결과를 보여줄 수 있음 (선택사항)
+    // if (term) {
+    //   setDistrictFilter('all');
+    //   setCategoryFilter('all');
+    // }
+  };
 
   // 로딩 상태
   if (loading) {
@@ -149,11 +194,25 @@ const Map: React.FC = () => {
               </div>
             </div>
 
+            {/* 검색 입력 */}
+            <div className="mb-3">
+              <SearchInput
+                  searchTerm={searchTerm}
+                  setSearchTerm={handleSearchChange}
+                  placeholder="관광지 이름이나 주소로 검색..."
+              />
+            </div>
+
             {/* 구별 필터 */}
             <div className="mb-2">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="text-sm font-medium text-gray-700">구별</span>
                 <span className="text-xs text-gray-500">({filteredSpots.length}개)</span>
+                {searchTerm && (
+                    <span className="text-xs text-blue-500">
+                    "{searchTerm}" 검색 결과
+                  </span>
+                )}
               </div>
               <DistrictFilterTabs
                   filter={districtFilter}
