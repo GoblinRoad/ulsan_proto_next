@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { setSessionCookies, clearSessionCookies, getSessionFromCookies } from "../utils/cookieUtils";
 
 interface AuthContextType {
   user: User | null;
@@ -30,13 +31,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 초기 세션 확인
+    // 초기 세션 확인 (쿠키에서 먼저 확인)
     const getSession = async () => {
+      // 먼저 쿠키에서 세션 확인
+      const cookieSession = getSessionFromCookies();
+      
+      if (cookieSession) {
+        setSession(cookieSession);
+        setUser(cookieSession?.user ?? null);
+      }
+
+      // Supabase에서 최신 세션 확인
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
+      
+      if (session) {
+        setSessionCookies(session);
+        setSession(session);
+        setUser(session?.user ?? null);
+      } else if (!cookieSession) {
+        // 세션이 없고 쿠키에도 없으면 정리
+        clearSessionCookies();
+        setSession(null);
+        setUser(null);
+      }
+      
       setLoading(false);
     };
 
@@ -46,8 +66,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+      if (session) {
+        setSessionCookies(session);
+        setSession(session);
+        setUser(session?.user ?? null);
+      } else {
+        clearSessionCookies();
+        setSession(null);
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -91,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // 로그아웃
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+    clearSessionCookies();
     if (error) throw error;
   };
 
