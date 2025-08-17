@@ -1,17 +1,17 @@
 import React from 'react';
+import { Sun, CloudSun, Wind, Moon } from 'lucide-react';
 import { useWeatherApi } from '../../../hooks/useWeatherApi';
 import { WeatherCondition } from '../../../types/weather';
 
-type WeatherVariant = 'dayClear' | 'nightClear' | 'cloudy' | 'rain' | 'snow' | 'overcast';
+type WeatherVariant = 'dayClear' | 'nightClear' | 'cloudy' | 'rain' | 'snow';
 
 const conditionToVariant = (condition: WeatherCondition, isNight: boolean): WeatherVariant => {
   switch (condition) {
     case 'sunny':
       return isNight ? 'nightClear' : 'dayClear';
     case 'cloudy':
-      return 'cloudy';
     case 'overcast':
-      return 'overcast';
+      return 'cloudy';
     case 'rainy':
       return 'rain';
     case 'snowy':
@@ -21,57 +21,104 @@ const conditionToVariant = (condition: WeatherCondition, isNight: boolean): Weat
   }
 };
 
+const conditionToKorean = (condition: WeatherCondition) => {
+  switch (condition) {
+    case 'sunny':
+      return '맑음';
+    case 'cloudy':
+      return '구름많음';
+    case 'overcast':
+      return '흐림';
+    case 'rainy':
+      return '비';
+    case 'snowy':
+      return '눈';
+    default:
+      return '맑음';
+  }
+};
+
 const variantToGradient: Record<WeatherVariant, string> = {
   dayClear: 'from-sky-400 to-blue-600',
   nightClear: 'from-indigo-800 to-blue-900',
   cloudy: 'from-slate-400 to-sky-600',
-  overcast: 'from-gray-500 to-slate-600',
   rain: 'from-indigo-600 to-slate-700',
   snow: 'from-sky-200 to-blue-400'
+};
+
+//체감온도 공식
+const calculateFeelsLike = (temp: number, windSpeed: number, humidity: number) => {
+  if (temp >= 27) {
+    const T = temp;
+    const H = humidity;
+    const HI = -8.78469475556 + 1.61139411 * T + 2.33854883889 * H - 0.14611605 * T * H
+        - 0.012308094 * (T * T) - 0.0164248277778 * (H * H) + 0.002211732 * (T * T) * H
+        + 0.00072546 * T * (H * H) - 0.000003582 * (T * T) * (H * H);
+    return Math.round(HI - (windSpeed * 0.5));
+  }
+
+  if (temp <= 10 && windSpeed >= 1.3) {
+    const windChill = 13.12 + 0.6215 * temp - 11.37 * Math.pow(windSpeed * 3.6, 0.16)
+        + 0.3965 * temp * Math.pow(windSpeed * 3.6, 0.16);
+    return Math.round(windChill);
+  }
+
+  return Math.round(temp - (windSpeed * 0.4) + (humidity - 50) * 0.1);
 };
 
 const WeatherWhale: React.FC = () => {
   const { weatherData, weatherCondition, loading, error } = useWeatherApi();
 
-  const currentHour = new Date().getHours();
-  const isNight = currentHour >= 18 || currentHour < 6;
+  const now = new Date();
+  const dateLabel = now.toLocaleDateString('ko-KR', {
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long'
+  });
 
+  const currentHour = new Date().getHours();
+  const isNight = currentHour >= 19 || currentHour < 6;
   const variant = conditionToVariant(weatherCondition, isNight);
 
   if (loading) {
     return (
-        <div className="bg-gradient-to-r from-sky-400 to-blue-600 rounded-2xl p-4 min-h-[150px] flex items-center justify-center">
-          <div className="text-white text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-            <p className="text-sm">날씨 정보를 불러오는 중...</p>
+        <div className="relative rounded-2xl p-6 text-white animate-bounceIn bg-gradient-to-r from-sky-400 to-blue-600">
+          <div className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+              <p className="text-sm">날씨 정보를 불러오는 중...</p>
+            </div>
           </div>
         </div>
     );
   }
 
-  if (error) {
+  if (error || !weatherData) {
     return (
-        <div className="bg-gradient-to-r from-gray-400 to-gray-600 rounded-2xl p-4 min-h-[150px] flex items-center justify-center">
-          <div className="text-white text-center">
-            <p className="text-sm mb-2">날씨 정보를 불러올 수 없습니다</p>
-            <p className="text-xs opacity-75">{error}</p>
+        <div className="relative rounded-2xl p-6 text-white animate-bounceIn bg-gradient-to-r from-gray-400 to-gray-600">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <p className="text-blue-100 text-sm">{dateLabel}</p>
+              <h2 className="text-xl font-bold mt-1">울산 현재 날씨</h2>
+            </div>
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              {isNight ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+            </div>
           </div>
+          <div className="text-blue-100 text-sm">날씨 정보를 불러올 수 없습니다</div>
         </div>
     );
   }
 
-  const formatTime = (fcstTime: string) => {
-    if (!fcstTime || fcstTime.length !== 4) return '';
-    const hour = fcstTime.slice(0, 2);
-    const minute = fcstTime.slice(2, 4);
-    return `${hour}:${minute}`;
-  };
+  const feelsLike = calculateFeelsLike(
+      weatherData.temperature,
+      weatherData.windSpeed,
+      weatherData.humidity
+  );
 
   return (
-      <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-r ${variantToGradient[variant]} min-h-[150px]`}>
-        {/* 배경 SVG */}
+      <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-r ${variantToGradient[variant]} animate-bounceIn`}>
         <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full opacity-20">
-          {/* Hills */}
           <defs>
             <linearGradient id="hillGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.6" />
@@ -87,143 +134,50 @@ const WeatherWhale: React.FC = () => {
               opacity="0.9"
           />
 
-          {/* Bubbles - 날씨에 따라 다르게 표시 */}
-          {weatherCondition === 'rainy' && (
-              <g>
-                {/* 빗방울 */}
-                <circle cx="95" cy="60" r="1.5" fill="#ffffff" opacity="0.8">
-                  <animateTransform
-                      attributeName="transform"
-                      type="translate"
-                      values="0,0; 0,80; 0,160"
-                      dur="2s"
-                      repeatCount="indefinite"
-                  />
-                </circle>
-                <circle cx="110" cy="50" r="1.2" fill="#ffffff" opacity="0.7">
-                  <animateTransform
-                      attributeName="transform"
-                      type="translate"
-                      values="0,0; 0,90; 0,180"
-                      dur="2.5s"
-                      repeatCount="indefinite"
-                  />
-                </circle>
-                <circle cx="85" cy="70" r="1.3" fill="#ffffff" opacity="0.6">
-                  <animateTransform
-                      attributeName="transform"
-                      type="translate"
-                      values="0,0; 0,70; 0,140"
-                      dur="1.8s"
-                      repeatCount="indefinite"
-                  />
-                </circle>
-              </g>
-          )}
+          {/* Small bubbles */}
+          <circle cx="95" cy="130" r="3" fill="#ffffff" opacity="0.6" />
+          <circle cx="90" cy="140" r="2" fill="#ffffff" opacity="0.5" />
+          <circle cx="100" cy="145" r="1.8" fill="#ffffff" opacity="0.5" />
 
-          {weatherCondition === 'snowy' && (
-              <g>
-                {/* 눈송이 */}
-                <g transform="translate(95, 60)" fill="#ffffff" opacity="0.8">
-                  <path d="M0,-3 L0,3 M-3,0 L3,0 M-2,-2 L2,2 M-2,2 L2,-2" stroke="#ffffff" strokeWidth="0.5" />
-                  <animateTransform
-                      attributeName="transform"
-                      type="translate"
-                      values="95,60; 95,140; 95,220"
-                      dur="4s"
-                      repeatCount="indefinite"
-                  />
-                </g>
-                <g transform="translate(110, 50)" fill="#ffffff" opacity="0.7">
-                  <path d="M0,-2.5 L0,2.5 M-2.5,0 L2.5,0 M-1.8,-1.8 L1.8,1.8 M-1.8,1.8 L1.8,-1.8" stroke="#ffffff" strokeWidth="0.4" />
-                  <animateTransform
-                      attributeName="transform"
-                      type="translate"
-                      values="110,50; 110,130; 110,210"
-                      dur="4.5s"
-                      repeatCount="indefinite"
-                  />
-                </g>
-              </g>
-          )}
-
-          {(weatherCondition === 'sunny' || weatherCondition === 'cloudy') && (
-              <g>
-                {/* 기본 거품들 */}
-                <circle cx="95" cy="130" r="3" fill="#ffffff" opacity="0.6" />
-                <circle cx="90" cy="140" r="2" fill="#ffffff" opacity="0.5" />
-                <circle cx="100" cy="145" r="1.8" fill="#ffffff" opacity="0.5" />
-              </g>
-          )}
-
-          {/* 구름 - 날씨에 따라 개수 조절 */}
-          <g fill="#ffffff" opacity={weatherCondition === 'overcast' ? "0.8" : "0.5"}>
+          {/* Minimal clouds */}
+          <g fill="#ffffff" opacity="0.5">
             <ellipse cx="60" cy="40" rx="20" ry="8" />
             <ellipse cx="85" cy="42" rx="12" ry="6" />
-            {(weatherCondition === 'cloudy' || weatherCondition === 'overcast') && (
-                <>
-                  <ellipse cx="150" cy="35" rx="15" ry="7" />
-                  <ellipse cx="180" cy="38" rx="18" ry="8" />
-                </>
-            )}
             <ellipse cx="300" cy="36" rx="18" ry="7" />
             <ellipse cx="320" cy="38" rx="10" ry="5" />
           </g>
-
-          {/* 태양 (맑은 날씨일 때만) */}
-          {weatherCondition === 'sunny' && !isNight && (
-              <g>
-                <circle cx="350" cy="50" r="15" fill="#ffffff" opacity="0.7" />
-                <g stroke="#ffffff" strokeWidth="2" opacity="0.5">
-                  <line x1="350" y1="25" x2="350" y2="35" />
-                  <line x1="350" y1="65" x2="350" y2="75" />
-                  <line x1="325" y1="50" x2="335" y2="50" />
-                  <line x1="365" y1="50" x2="375" y2="50" />
-                  <line x1="332" y1="32" x2="339" y2="39" />
-                  <line x1="361" y1="61" x2="368" y2="68" />
-                  <line x1="368" y1="32" x2="361" y2="39" />
-                  <line x1="339" y1="61" x2="332" y2="68" />
-                </g>
-              </g>
-          )}
-
-          {/* 달 (밤일 때) */}
-          {isNight && weatherCondition !== 'overcast' && (
-              <g>
-                <circle cx="350" cy="50" r="12" fill="#ffffff" opacity="0.6" />
-                <circle cx="348" cy="47" r="10" fill="#ffffff" opacity="0.3" />
-              </g>
-          )}
         </svg>
 
-        {/* 날씨 정보 오버레이 */}
-        <div className="relative z-10 p-4 h-full flex flex-col justify-between">
-          <div className="text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold mb-1">울산 날씨</h3>
-                <p className="text-sm opacity-90">
-                  {weatherData && formatTime(weatherData.fcstTime)} 예보
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-3xl font-bold">{weatherData?.temperature}°</p>
-                <p className="text-sm opacity-90">습도 {weatherData?.humidity}%</p>
-              </div>
+        <div className="relative z-10 p-6 text-white">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <p className="text-blue-100 text-sm">{dateLabel}</p>
+              <h2 className="text-xl font-bold mt-1">울산 현재 날씨</h2>
+            </div>
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              {isNight ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
             </div>
           </div>
 
-          <div className="text-white">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <span>강수 {weatherData?.rainProbability}%</span>
-                <span>바람 {weatherData?.windSpeed}m/s</span>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="flex items-baseline space-x-2">
+                <span className="text-4xl font-extrabold">{weatherData.temperature}°</span>
+                <span className="text-blue-100 text-base">{conditionToKorean(weatherCondition)}</span>
               </div>
-              <div>
-                {weatherData?.precipitation !== '강수없음' && (
-                    <span>{weatherData?.precipitation}</span>
-                )}
-              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-blue-100">
+              <CloudSun className="w-4 h-4" />
+              <span className="text-sm">체감 {feelsLike}°</span>
+              <span className="text-blue-200">•</span>
+              <Wind className="w-4 h-4" />
+              <span className="text-sm">{weatherData.windSpeed}m/s</span>
+              {weatherData.rainProbability > 0 && (
+                  <>
+                    <span className="text-blue-200">•</span>
+                    <span className="text-sm">강수 {weatherData.rainProbability}%</span>
+                  </>
+              )}
             </div>
           </div>
         </div>

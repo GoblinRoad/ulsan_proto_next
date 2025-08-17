@@ -4,41 +4,42 @@ import { WeatherApiResponse, ProcessedWeatherData, WeatherCondition } from '../t
 const BASE_URL = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst';
 
 const ULSAN_COORDINATES = {
-    nx: 35,
-    ny: 129
+    nx: 55,  // 울산 동구 기준 (문서 예제와 동일)
+    ny: 127
 };
 
-// 현재 시간을 기준으로 가장 가까운 예보 시간 계산
 const getBaseDateTime = (): { date: string; time: string } => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const hour = now.getHours();
+    const minute = now.getMinutes();
 
-    // 예보는 3시간 간격으로 발표됨 (02, 05, 08, 11, 14, 17, 20, 23시)
     const baseHours = [2, 5, 8, 11, 14, 17, 20, 23];
-    let baseHour = baseHours.reduce((prev, curr) =>
-        Math.abs(curr - hour) < Math.abs(prev - hour) ? curr : prev
-    );
 
-    // 현재 시간이 발표 시간보다 이전이면 이전 발표 시간 사용
-    if (hour < baseHour) {
-        const index = baseHours.indexOf(baseHour);
-        if (index > 0) {
-            baseHour = baseHours[index - 1];
-        } else {
-            // 하루 전날 23시
-            const yesterday = new Date(now);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayYear = yesterday.getFullYear();
-            const yesterdayMonth = String(yesterday.getMonth() + 1).padStart(2, '0');
-            const yesterdayDay = String(yesterday.getDate()).padStart(2, '0');
-            return {
-                date: `${yesterdayYear}${yesterdayMonth}${yesterdayDay}`,
-                time: '2300'
-            };
+    let baseHour = baseHours[0];
+
+    for (let i = baseHours.length - 1; i >= 0; i--) {
+        const publishTime = baseHours[i];
+        const publishMinute = 10;
+
+        if (hour > publishTime || (hour === publishTime && minute >= publishMinute)) {
+            baseHour = publishTime;
+            break;
         }
+    }
+
+    if (hour < 2 || (hour === 2 && minute < 10)) {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayYear = yesterday.getFullYear();
+        const yesterdayMonth = String(yesterday.getMonth() + 1).padStart(2, '0');
+        const yesterdayDay = String(yesterday.getDate()).padStart(2, '0');
+        return {
+            date: `${yesterdayYear}${yesterdayMonth}${yesterdayDay}`,
+            time: '2300'
+        };
     }
 
     return {
@@ -47,18 +48,24 @@ const getBaseDateTime = (): { date: string; time: string } => {
     };
 };
 
-// 날씨 데이터 처리
 const processWeatherData = (items: any[]): ProcessedWeatherData | null => {
     if (!items || items.length === 0) return null;
 
     const weatherMap = new Map<string, string>();
 
-    // 첫 번째 예보 시간의 데이터만 추출
-    const firstFcstTime = items[0].fcstTime;
-    const firstFcstDate = items[0].fcstDate;
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    let targetItem = items.find(item => {
+        const fcstHour = parseInt(item.fcstTime.slice(0, 2));
+        return fcstHour >= currentHour;
+    }) || items[0];
+
+    const targetDate = targetItem.fcstDate;
+    const targetTime = targetItem.fcstTime;
 
     items
-        .filter(item => item.fcstTime === firstFcstTime && item.fcstDate === firstFcstDate)
+        .filter(item => item.fcstTime === targetTime && item.fcstDate === targetDate)
         .forEach(item => {
             weatherMap.set(item.category, item.fcstValue);
         });
@@ -69,25 +76,48 @@ const processWeatherData = (items: any[]): ProcessedWeatherData | null => {
         rainProbability: parseFloat(weatherMap.get('POP') || '0'),
         skyCondition: parseInt(weatherMap.get('SKY') || '1'),
         precipitationType: parseInt(weatherMap.get('PTY') || '0'),
-        precipitation: weatherMap.get('PCP') || '강수없음',
+        precipitation: formatPrecipitation(weatherMap.get('PCP') || '강수없음'),
         windSpeed: parseFloat(weatherMap.get('WSD') || '0'),
-        fcstDate: firstFcstDate,
-        fcstTime: firstFcstTime
+        fcstDate: targetDate,
+        fcstTime: targetTime
     };
 };
 
-// 날씨 상태 결정
-const getWeatherCondition = (data: ProcessedWeatherData): WeatherCondition => {
-    // 강수 형태가 있는 경우
-    if (data.precipitationType > 0) {
-        if (data.precipitationType === 3) return 'snowy'; // 눈
-        return 'rainy'; // 비 또는 비/눈
+const formatPrecipitation = (pcpValue: string): string => {
+    if (!pcpValue || pcpValue === '강수없음' || pcpValue === '0' || pcpValue === '-') {
+        return '강수없음';
     }
 
-    // 하늘 상태에 따라 결정
-    if (data.skyCondition === 1) return 'sunny'; // 맑음
-    if (data.skyCondition === 3) return 'cloudy'; // 구름많음
-    return 'overcast'; // 흐림
+    const value = parseFloat(pcpValue);
+
+    if (value < 1.0) {
+        return '1mm 미만';
+    } else if (value >= 1.0 && value < 30.0) {
+        return `${value}mm`;
+    } else if (value >= 30.0 && value < 50.0) {
+        return '30.0~50.0mm';
+    } else {
+        return '50.0mm 이상';
+    }
+};
+
+const getWeatherCondition = (data: ProcessedWeatherData): WeatherCondition => {
+    if (data.precipitationType > 0) {
+        switch (data.precipitationType) {
+            case 1: return 'rainy';      // 비
+            case 2: return 'rainy';      // 비/눈
+            case 3: return 'snowy';      // 눈
+            case 4: return 'rainy';      // 소나기
+            default: return 'rainy';
+        }
+    }
+
+    switch (data.skyCondition) {
+        case 1: return 'sunny';    // 맑음
+        case 3: return 'cloudy';   // 구름많음
+        case 4: return 'overcast'; // 흐림
+        default: return 'sunny';
+    }
 };
 
 export const useWeatherApi = () => {
@@ -111,7 +141,7 @@ export const useWeatherApi = () => {
             const params = new URLSearchParams({
                 serviceKey: decodeURIComponent(apiKey),
                 pageNo: '1',
-                numOfRows: '12',
+                numOfRows: '36',
                 dataType: 'json',
                 base_date: date,
                 base_time: time,
@@ -121,17 +151,12 @@ export const useWeatherApi = () => {
 
             const apiResponse = await fetch(`${BASE_URL}?${params}`);
 
-            console.log('API Response:', apiResponse);
-
             if (!apiResponse.ok) {
                 throw new Error(`HTTP error! status: ${apiResponse.status}`);
             }
 
-            // 응답 텍스트를 먼저 확인
             const responseText = await apiResponse.text();
-            console.log('Response Text:', responseText.substring(0, 200));
 
-            // XML 응답인지 확인
             if (responseText.trim().startsWith('<')) {
                 throw new Error('API가 XML로 응답했습니다. JSON 응답을 확인해주세요.');
             }
@@ -145,7 +170,7 @@ export const useWeatherApi = () => {
             }
 
             if (responseData.response.header.resultCode !== '00') {
-                throw new Error(`API Error: ${responseData.response.header.resultMsg}`);
+                throw new Error(`API Error [${responseData.response.header.resultCode}]: ${responseData.response.header.resultMsg}`);
             }
 
             const processedData = processWeatherData(responseData.response.body.items.item);
@@ -162,18 +187,18 @@ export const useWeatherApi = () => {
             setError(errorMessage);
             console.error('Weather API Error:', err);
 
-            // 오류 발생 시 기본값 설정
-            setWeatherData({
+            const defaultData: ProcessedWeatherData = {
                 temperature: 20,
                 humidity: 50,
-                rainProbability: 0,
+                rainProbability: 10,
                 skyCondition: 1,
                 precipitationType: 0,
                 precipitation: '강수없음',
-                windSpeed: 0,
+                windSpeed: 2,
                 fcstDate: new Date().toISOString().slice(0, 10).replace(/-/g, ''),
                 fcstTime: '1200'
-            });
+            };
+            setWeatherData(defaultData);
             setWeatherCondition('sunny');
         } finally {
             setLoading(false);
@@ -183,8 +208,7 @@ export const useWeatherApi = () => {
     useEffect(() => {
         fetchWeather();
 
-        // 30분마다 새로고침
-        const interval = setInterval(fetchWeather, 30 * 60 * 1000);
+        const interval = setInterval(fetchWeather, 60 * 60 * 1000);
 
         return () => clearInterval(interval);
     }, []);
