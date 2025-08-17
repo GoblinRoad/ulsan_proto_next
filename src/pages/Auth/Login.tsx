@@ -126,7 +126,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white py-4 rounded-xl font-semibold text-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full bg-blue-400 text-white py-4 rounded-lg font-semibold text-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {loading ? (
                 <Loader className="w-6 h-6 animate-spin" />
@@ -149,10 +149,13 @@ const Login: React.FC = () => {
           {/* Kakao Login */}
           <button
             onClick={handleKakaoLogin}
-            className="w-full bg-yellow-400 text-gray-900 py-4 rounded-xl font-semibold text-lg hover:bg-yellow-500 transition-colors flex items-center justify-center space-x-2"
+            className="w-full hover:opacity-90 transition-opacity"
           >
-            <span className="text-xl">🗣</span>
-            <span>카카오로 계속하기</span>
+            <img
+              src="/images/kakao_login.png"
+              alt="카카오 로그인"
+              className="w-full h-auto"
+            />
           </button>
 
           {/* Sign Up Link */}
