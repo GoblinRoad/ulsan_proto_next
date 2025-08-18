@@ -227,6 +227,26 @@ const PopularCourseDetail: React.FC = () => {
           )}
         </div>
 
+        {/* 코스 소개 */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          {loading ? (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-3">코스 소개</h3>
+              <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
+            </div>
+          )}
+        </div>
+
+        {/* 관광지 목록 */}
         {loading ? (
           <div className="space-y-3">
             {course.items.map((_, idx) => (
@@ -276,34 +296,17 @@ const PopularCourseDetail: React.FC = () => {
           </div>
         )}
 
-        {/* 코스 소개 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          {loading ? (
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">코스 소개</h3>
-              <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
-            </div>
-          )}
-        </div>
-
         {/* 지도 섹션 */}
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3 text-sm text-gray-600">
-              <Clock className="w-4 h-4" />
-              <span>{etaText ? `총 최단 이동 시간 (자동차): ${etaText}` : ''}</span>
-            </div>
-            <div className={`w-10 h-10 bg-gradient-to-r ${course.color} rounded-lg flex items-center justify-center`}>
-              <MapPin className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3">
+              <h3 className="text-lg font-bold text-gray-800">코스 전체보기</h3>
+              {etaText && (
+                <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
+                  <Clock className="w-4 h-4" />
+                  <span>{etaText}</span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,4 +1,13 @@
 import { TourApiDetailResponse, TourApiIntroResponse, TourApiDetailItem, TourApiIntroItem } from '../types/tourApi';
+import 복순도가이미지 from '../assets/spot/울산_복순도가.png';
+import 트레비어이미지 from '../assets/spot/트레비어.jpg';
+import fe01이미지 from '../assets/spot/fe01.png';
+import 남창옹기종기시장이미지 from '../assets/spot/남창옹기종기시장.jpg';
+import 외고산옹기마을이미지 from '../assets/spot/외고산옹기마을.jpg';
+import 장생포고래문화특구이미지 from '../assets/spot/장생포고래문화특구.png';
+import 울산문화의거리이미지 from '../assets/spot/울산문화의거리.jpg';
+import 대왕암출렁다리이미지 from '../assets/spot/대왕암출렁다리.jpg';
+import 일산해수욕장이미지 from '../assets/spot/일산해수욕장.jpg';
 
 export interface CourseSpotInfo {
   name: string;
@@ -76,9 +85,14 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
     }
 
     // 가장 정확한 매칭 찾기 (더 유연한 매칭)
-    const bestMatch = items.find((item: any) => {
+    let bestMatch = items.find((item: any) => {
       const title = item.title.toLowerCase();
       const searchName = spotName.toLowerCase();
+      
+      // 태화루 특별 처리: "탁주"가 포함된 결과 제외
+      if (searchName === '태화루' && title.includes('탁주')) {
+        return false;
+      }
       
       // 정확한 포함 관계 확인
       if (title.includes(searchName) || searchName.includes(title)) {
@@ -98,7 +112,20 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
       const noSpaceSearchName = searchName.replace(/\s+/g, '');
       
       return noSpaceTitle.includes(noSpaceSearchName) || noSpaceSearchName.includes(noSpaceTitle);
-    }) || items[0];
+    });
+
+    // 태화루의 경우 "탁주"가 포함되지 않은 결과를 우선적으로 찾기
+    if (!bestMatch && spotName === '태화루') {
+      bestMatch = items.find((item: any) => {
+        const title = item.title.toLowerCase();
+        return title.includes('태화루') && !title.includes('탁주');
+      });
+    }
+
+    // 여전히 찾지 못한 경우 첫 번째 결과 사용
+    if (!bestMatch) {
+      bestMatch = items[0];
+    }
 
     const contentId = bestMatch.contentid;
 
@@ -154,12 +181,35 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
       }
     }
 
+    // 특정 관광지에 대해 로컬 이미지 사용
+    let imageUrl = detailItem.firstimage || detailItem.firstimage2 || '/placeholder-image.jpg';
+    
+    if (spotName === '복순도가') {
+      imageUrl = 복순도가이미지;
+    } else if (spotName === '트레비어') {
+      imageUrl = 트레비어이미지;
+    } else if (spotName === 'Fe01') {
+      imageUrl = fe01이미지;
+    } else if (spotName === '남창옹기종기시장') {
+      imageUrl = 남창옹기종기시장이미지;
+    } else if (spotName === '외고산 옹기마을') {
+      imageUrl = 외고산옹기마을이미지;
+    } else if (spotName === '출렁다리') {
+      imageUrl = 대왕암출렁다리이미지;
+    } else if (spotName === '일산해수욕장') {
+      imageUrl = 일산해수욕장이미지;
+    } else if (spotName === '장생포고래문화특구') {
+      imageUrl = 장생포고래문화특구이미지;
+    } else if (spotName === '울산 문화의거리') {
+      imageUrl = 울산문화의거리이미지;
+    }
+
     return {
       name: detailItem.title,
       contentId: detailItem.contentid,
       lat: parseFloat(detailItem.mapy),
       lng: parseFloat(detailItem.mapx),
-      image: detailItem.firstimage || detailItem.firstimage2 || '/placeholder-image.jpg',
+      image: imageUrl,
       description: detailItem.overview || '상세 정보가 준비 중입니다.',
       address: `${detailItem.addr1} ${detailItem.addr2 || ''}`.trim(),
       tel: detailItem.tel,
