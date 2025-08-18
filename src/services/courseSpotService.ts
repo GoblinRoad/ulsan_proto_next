@@ -276,3 +276,27 @@ export function clearSpotCache() {
   spotInfoCache.clear();
   courseCache.clear();
 }
+
+// 첫 번째 관광지만 빠르게 가져오는 함수 (대표 이미지용)
+export async function getFirstSpotInfo(courseName: string): Promise<CourseSpotInfo | null> {
+  const spotNames = COURSE_SPOT_MAPPING[courseName];
+  
+  if (!spotNames || spotNames.length === 0) {
+    return null;
+  }
+
+  const firstSpotName = spotNames[0];
+  
+  // 캐시 확인
+  if (spotInfoCache.has(firstSpotName)) {
+    return spotInfoCache.get(firstSpotName)!;
+  }
+
+  // 첫 번째 관광지만 가져오기
+  const spotInfo = await searchSpotByName(firstSpotName);
+  if (spotInfo) {
+    spotInfoCache.set(firstSpotName, spotInfo);
+  }
+  
+  return spotInfo;
+}

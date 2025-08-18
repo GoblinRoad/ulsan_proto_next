@@ -124,13 +124,14 @@ const PopularCourseDetail: React.FC = () => {
     return accuratePath.length > 0 ? accuratePath : [];
   }, [accuratePath]);
 
-  // API 데이터 로드 (비동기 최적화)
+  // API 데이터 로드 (상세 페이지에서는 전체 코스 정보 로딩)
   useEffect(() => {
     let isMounted = true;
     
     const loadCourseData = async () => {
       setLoading(true);
       try {
+        // 상세 페이지에서는 전체 코스의 관광지 정보를 가져옴
         const courseSpotsInfo = await getCourseSpotsInfoWithCache(course.name);
         if (isMounted) {
           setSpotsInfo(courseSpotsInfo);
