@@ -228,28 +228,74 @@ const PopularCourseDetail: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="w-full rounded-xl border border-gray-100 bg-gray-50" style={{ height: 260 }}>
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-center">
-                <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">코스 정보 로딩 중...</h3>
-                <p className="text-gray-500 text-sm">울산 관광지 데이터를 가져오고 있습니다</p>
-              </div>
+          <div className="space-y-3">
+            {course.items.map((_, idx) => (
+              <div key={idx} className="w-full h-48 bg-gray-200 animate-pulse rounded-xl" />
+            ))}
+            <div className="text-center py-4 text-sm text-gray-500">
+              관광지 정보를 불러오는 중...
             </div>
           </div>
+        ) : spots.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>관광지 정보를 불러올 수 없습니다.</p>
+            <p className="text-sm mt-2">잠시 후 다시 시도해주세요.</p>
+          </div>
         ) : (
-          <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height: 260 }}>
-            <div id="kakao-map-container" ref={undefined} />
-            <KakaoMap
-              center={center}
-              markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
-              path={path}
-              height={260}
-              showOrder
-            />
+          <div className="space-y-4">
+            {spots.map((spot: SpotDetail, idx: number) => (
+              <button
+                key={idx}
+                className="w-full text-left group"
+                onClick={() => openSpotModal(spot)}
+              >
+                <div className="relative w-full h-48 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <img 
+                    src={spot.image} 
+                    alt={spot.name} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {/* 오버레이 그라데이션 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  
+                  {/* 관광지 정보 오버레이 */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-bold text-gray-800">{idx + 1}</span>
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold text-lg">{spot.name}</h3>
+                        <p className="text-white/80 text-sm">탭하여 상세 보기</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
         )}
 
+        {/* 코스 소개 */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          {loading ? (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-3">코스 소개</h3>
+              <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
+            </div>
+          )}
+        </div>
+
+        {/* 지도 섹션 */}
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3 text-sm text-gray-600">
@@ -262,61 +308,25 @@ const PopularCourseDetail: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+            <div className="w-full rounded-xl border border-gray-100 bg-gray-50" style={{ height: 260 }}>
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">지도 로딩 중...</h3>
+                  <p className="text-gray-500 text-sm">경로 정보를 가져오고 있습니다</p>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold text-gray-800 mb-2">코스 소개</h3>
-              <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
-            </div>
-          )}
-
-          {loading ? (
-            <div className="space-y-3">
-              {course.items.map((_, idx) => (
-                <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
-                  <div className="flex items-center p-3">
-                    <div className="w-20 h-20 bg-gray-200 animate-pulse rounded" />
-                    <div className="p-3 flex-1">
-                      <div className="h-4 bg-gray-200 animate-pulse rounded mb-2" />
-                      <div className="h-3 bg-gray-200 animate-pulse rounded w-24" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <div className="text-center py-4 text-sm text-gray-500">
-                관광지 정보를 불러오는 중...
-              </div>
-            </div>
-          ) : spots.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p>관광지 정보를 불러올 수 없습니다.</p>
-              <p className="text-sm mt-2">잠시 후 다시 시도해주세요.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {spots.map((spot: SpotDetail, idx: number) => (
-                <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
-                  <button
-                    className="w-full text-left"
-                    onClick={() => openSpotModal(spot)}
-                  >
-                    <div className="flex items-center">
-                      <img src={spot.image} alt={spot.name} className="w-20 h-20 object-cover" />
-                      <div className="p-3 flex-1">
-                        <p className="font-semibold text-gray-800">{idx + 1}. {spot.name}</p>
-                        <p className="text-xs text-gray-500">탭하여 상세 보기</p>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              ))}
+            <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height: 260 }}>
+              <div id="kakao-map-container" ref={undefined} />
+              <KakaoMap
+                center={center}
+                markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
+                path={path}
+                height={260}
+                showOrder
+              />
             </div>
           )}
         </div>
