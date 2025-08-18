@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { popularCourses } from './courses';
-import { ArrowLeft, MapPin, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, Loader2, X, Phone, Ban, Car } from 'lucide-react';
 import kakaoLogo from '../../assets/images/kakaotalk_logo_icon.png';
 import KakaoMap from '../../components/Map/KakaoMap';
 import { fetchKakaoDirections, fetchKakaoCarDirections, formatDurationHM } from '../../services/kakaoNavi';
@@ -14,36 +14,6 @@ const parseHtmlText = (text: string): string => {
     .replace(/<br\s*\/?>/gi, '\n')  // <br> 태그를 줄바꿈으로 변환
     .replace(/<[^>]*>/g, '')       // 다른 HTML 태그 제거
     .trim();
-};
-
-// 카카오맵으로 길찾기 이동하는 함수
-const openKakaoMapNavigation = (lat: number, lng: number, name: string) => {
-  // 사용자 현재 위치 가져오기
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        const url = `http://m.map.kakao.com/scheme/route?sp=${userLat},${userLng}&ep=${lat},${lng}&by=car`;
-        window.open(url, '_blank');
-      },
-      (error) => {
-        console.error('위치 정보를 가져올 수 없습니다:', error);
-        // 위치 정보를 가져올 수 없으면 울산 시청을 출발지로 사용
-        const fallbackUrl = `http://m.map.kakao.com/scheme/route?sp=35.538,129.311&ep=${lat},${lng}&by=car`;
-        window.open(fallbackUrl, '_blank');
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5분
-      }
-    );
-  } else {
-    // Geolocation을 지원하지 않는 경우 울산 시청을 출발지로 사용
-    const fallbackUrl = `http://m.map.kakao.com/scheme/route?sp=35.538,129.311&ep=${lat},${lng}&by=car`;
-    window.open(fallbackUrl, '_blank');
-  }
 };
 
 interface SpotDetail {
@@ -75,11 +45,54 @@ const PopularCourseDetail: React.FC = () => {
 
   const defaultCenter = { lat: 35.538, lng: 129.311 }; // 울산 시청 근방 대략 좌표
 
-  const [expandedIndices, setExpandedIndices] = useState<Set<number>>(new Set());
   const [etaText, setEtaText] = useState<string | null>(null);
   const [spotsInfo, setSpotsInfo] = useState<CourseSpotInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [accuratePath, setAccuratePath] = useState<{ lat: number; lng: number }[]>([]);
+  const [selectedSpot, setSelectedSpot] = useState<SpotDetail | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 모달을 여는 함수
+  const openSpotModal = (spot: SpotDetail) => {
+    setSelectedSpot(spot);
+    setIsModalOpen(true);
+  };
+
+  // 모달을 닫는 함수
+  const closeSpotModal = () => {
+    setIsModalOpen(false);
+    setSelectedSpot(null);
+  };
+
+  // 카카오맵으로 길찾기 이동하는 함수
+  const openKakaoMapNavigation = (lat: number, lng: number, name: string) => {
+    // 사용자 현재 위치 가져오기
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          const url = `http://m.map.kakao.com/scheme/route?sp=${userLat},${userLng}&ep=${lat},${lng}&by=car`;
+          window.open(url, '_blank');
+        },
+        (error) => {
+          console.error('위치 정보를 가져올 수 없습니다:', error);
+          // 위치 정보를 가져올 수 없으면 울산 시청을 출발지로 사용
+          const fallbackUrl = `http://m.map.kakao.com/scheme/route?sp=35.538,129.311&ep=${lat},${lng}&by=car`;
+          window.open(fallbackUrl, '_blank');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5분
+        }
+      );
+    } else {
+      // Geolocation을 지원하지 않는 경우 울산 시청을 출발지로 사용
+      const fallbackUrl = `http://m.map.kakao.com/scheme/route?sp=35.538,129.311&ep=${lat},${lng}&by=car`;
+      window.open(fallbackUrl, '_blank');
+    }
+  };
 
   // 실제 API 데이터를 사용하는 spots
   const spots: SpotDetail[] = useMemo(() => {
@@ -195,169 +208,231 @@ const PopularCourseDetail: React.FC = () => {
   }, [spots]);
 
   return (
-    <div className="max-w-md mx-auto px-4 space-y-6 animate-slideUp">
-      <div className="flex items-center space-x-3 pt-2">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-100">
-          <ArrowLeft className="w-5 h-5 text-gray-700" />
-        </button>
-        {loading ? (
-          <div className="flex-1">
-            <div className="h-6 bg-gray-200 animate-pulse rounded mb-2 w-48"></div>
-            <div className="h-4 bg-gray-200 animate-pulse rounded w-32"></div>
-          </div>
-        ) : (
-          <div>
-            <h2 className="text-xl font-bold text-gray-800">{course.name}</h2>
-            <p className="text-sm text-gray-600 mt-1">{course.description}</p>
-          </div>
-        )}
-      </div>
-
-      {loading ? (
-        <div className="w-full rounded-xl border border-gray-100 bg-gray-50" style={{ height: 260 }}>
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">코스 정보 로딩 중...</h3>
-              <p className="text-gray-500 text-sm">울산 관광지 데이터를 가져오고 있습니다</p>
+    <>
+      <div className="max-w-md mx-auto px-4 space-y-6 animate-slideUp">
+        <div className="flex items-center space-x-3 pt-2">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-100">
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          {loading ? (
+            <div className="flex-1">
+              <div className="h-6 bg-gray-200 animate-pulse rounded mb-2 w-48"></div>
+              <div className="h-4 bg-gray-200 animate-pulse rounded w-32"></div>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height: 260 }}>
-          <div id="kakao-map-container" ref={undefined} />
-          <KakaoMap
-            center={center}
-            markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
-            path={path}
-            height={260}
-            showOrder
-          />
-        </div>
-      )}
-
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3 text-sm text-gray-600">
-            <Clock className="w-4 h-4" />
-            <span>{etaText ? `총 최단 이동 시간 (자동차): ${etaText}` : ''}</span>
-          </div>
-          <div className={`w-10 h-10 bg-gradient-to-r ${course.color} rounded-lg flex items-center justify-center`}>
-            <MapPin className="w-5 h-5 text-white" />
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
-            <div className="space-y-2">
-              <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
-              <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+          ) : (
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">{course.name}</h2>
+              <p className="text-sm text-gray-600 mt-1">{course.description}</p>
             </div>
-          </div>
-        ) : (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-800 mb-2">코스 소개</h3>
-            <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
-          </div>
-        )}
-
-
+          )}
+        </div>
 
         {loading ? (
-          <div className="space-y-3">
-            {course.items.map((_, idx) => (
-              <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
-                <div className="flex items-center p-3">
-                  <div className="w-20 h-20 bg-gray-200 animate-pulse rounded" />
-                  <div className="p-3 flex-1">
-                    <div className="h-4 bg-gray-200 animate-pulse rounded mb-2" />
-                    <div className="h-3 bg-gray-200 animate-pulse rounded w-24" />
-                  </div>
-                </div>
+          <div className="w-full rounded-xl border border-gray-100 bg-gray-50" style={{ height: 260 }}>
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center">
+                <Loader2 className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-spin" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">코스 정보 로딩 중...</h3>
+                <p className="text-gray-500 text-sm">울산 관광지 데이터를 가져오고 있습니다</p>
               </div>
-            ))}
-            <div className="text-center py-4 text-sm text-gray-500">
-              관광지 정보를 불러오는 중...
             </div>
           </div>
-        ) : spots.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>관광지 정보를 불러올 수 없습니다.</p>
-            <p className="text-sm mt-2">잠시 후 다시 시도해주세요.</p>
-          </div>
         ) : (
-          <div className="space-y-3">
-            {spots.map((spot: SpotDetail, idx: number) => (
-              <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
-                <button
-                  className="w-full text-left"
-                  onClick={() => {
-                    const newExpandedIndices = new Set(expandedIndices);
-                    if (newExpandedIndices.has(idx)) {
-                      newExpandedIndices.delete(idx);
-                    } else {
-                      newExpandedIndices.add(idx);
-                    }
-                    setExpandedIndices(newExpandedIndices);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <img src={spot.image} alt={spot.name} className="w-20 h-20 object-cover" />
+          <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height: 260 }}>
+            <div id="kakao-map-container" ref={undefined} />
+            <KakaoMap
+              center={center}
+              markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
+              path={path}
+              height={260}
+              showOrder
+            />
+          </div>
+        )}
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3 text-sm text-gray-600">
+              <Clock className="w-4 h-4" />
+              <span>{etaText ? `총 최단 이동 시간 (자동차): ${etaText}` : ''}</span>
+            </div>
+            <div className={`w-10 h-10 bg-gradient-to-r ${course.color} rounded-lg flex items-center justify-center`}>
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="h-4 bg-gray-200 animate-pulse rounded mb-2 w-24"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-semibold text-gray-800 mb-2">코스 소개</h3>
+              <p className="text-sm text-gray-700 leading-relaxed">{course.detailedDescription}</p>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="space-y-3">
+              {course.items.map((_, idx) => (
+                <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
+                  <div className="flex items-center p-3">
+                    <div className="w-20 h-20 bg-gray-200 animate-pulse rounded" />
                     <div className="p-3 flex-1">
-                      <p className="font-semibold text-gray-800">{idx + 1}. {spot.name}</p>
-                      <p className="text-xs text-gray-500">탭하여 상세 보기</p>
+                      <div className="h-4 bg-gray-200 animate-pulse rounded mb-2" />
+                      <div className="h-3 bg-gray-200 animate-pulse rounded w-24" />
                     </div>
                   </div>
+                </div>
+              ))}
+              <div className="text-center py-4 text-sm text-gray-500">
+                관광지 정보를 불러오는 중...
+              </div>
+            </div>
+          ) : spots.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>관광지 정보를 불러올 수 없습니다.</p>
+              <p className="text-sm mt-2">잠시 후 다시 시도해주세요.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {spots.map((spot: SpotDetail, idx: number) => (
+                <div key={idx} className="border border-gray-100 rounded-lg overflow-hidden">
+                  <button
+                    className="w-full text-left"
+                    onClick={() => openSpotModal(spot)}
+                  >
+                    <div className="flex items-center">
+                      <img src={spot.image} alt={spot.name} className="w-20 h-20 object-cover" />
+                      <div className="p-3 flex-1">
+                        <p className="font-semibold text-gray-800">{idx + 1}. {spot.name}</p>
+                        <p className="text-xs text-gray-500">탭하여 상세 보기</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 상세 정보 모달 */}
+      {isModalOpen && selectedSpot && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[85vh] overflow-hidden flex flex-col">
+            {/* 모달 헤더 */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-800">{selectedSpot.name}</h3>
+                <button
+                  onClick={closeSpotModal}
+                  className="p-2 rounded-lg hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
                 </button>
-                {expandedIndices.has(idx) && (
-                  <div className="p-3 border-t text-sm text-gray-700 bg-gray-50 space-y-2">
-                    <p>{parseHtmlText(spot.description)}</p>
-                    {spot.address && (
-                      <p className="text-gray-600">
-                        <span className="font-medium">주소:</span> {parseHtmlText(spot.address)}
-                      </p>
-                    )}
-                    {spot.tel && (
-                      <p className="text-gray-600">
-                        <span className="font-medium">전화:</span> {parseHtmlText(spot.tel)}
-                      </p>
-                    )}
-                    {spot.useTime && (
-                      <p className="text-gray-600">
-                        <span className="font-medium">이용시간:</span> {parseHtmlText(spot.useTime)}
-                      </p>
-                    )}
-                    {spot.restDate && (
-                      <p className="text-gray-600">
-                        <span className="font-medium">휴무일:</span> {parseHtmlText(spot.restDate)}
-                      </p>
-                    )}
-                    {spot.parking && (
-                      <p className="text-gray-600">
-                        <span className="font-medium">주차:</span> {parseHtmlText(spot.parking)}
-                      </p>
-                    )}
-                    
-                    {/* 카카오맵 길찾기 버튼 */}
-                    <div className="mt-4 pt-3 border-t border-gray-200">
-                      <button
-                        onClick={() => openKakaoMapNavigation(spot.lat, spot.lng, spot.name)}
-                        className="flex items-center justify-center w-full bg-yellow-300 hover:bg-yellow-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors"
-                      >
-                        <img src={kakaoLogo} alt="카카오맵" className="w-5 h-5 mr-2" />
-                        카카오맵으로 길찾기
-                      </button>
+              </div>
+            </div>
+
+            {/* 모달 내용 */}
+            <div className="p-4 space-y-6 overflow-y-auto flex-1">
+              {/* 관광지 이미지 */}
+              <div className="w-full h-48 rounded-lg overflow-hidden">
+                <img 
+                  src={selectedSpot.image} 
+                  alt={selectedSpot.name} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* 여행지 소개 */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-3">여행지 소개</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {parseHtmlText(selectedSpot.description)}
+                  </p>
+                </div>
+              </div>
+
+              {/* 기본 정보 */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-gray-800">기본 정보</h4>
+                
+                {selectedSpot.address && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-800">주소</p>
+                      <p className="text-gray-600 text-sm">{parseHtmlText(selectedSpot.address)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSpot.tel && (
+                  <div className="flex items-start space-x-3">
+                    <Phone className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-800">전화번호</p>
+                      <p className="text-gray-600 text-sm">{parseHtmlText(selectedSpot.tel)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSpot.useTime && (
+                  <div className="flex items-start space-x-3">
+                    <Clock className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-800">이용시간</p>
+                      <p className="text-gray-600 text-sm whitespace-pre-line">{parseHtmlText(selectedSpot.useTime)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSpot.restDate && (
+                  <div className="flex items-start space-x-3">
+                    <Ban className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-800">휴무일</p>
+                      <p className="text-gray-600 text-sm whitespace-pre-line">{parseHtmlText(selectedSpot.restDate)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSpot.parking && (
+                  <div className="flex items-start space-x-3">
+                    <Car className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-gray-800">주차</p>
+                      <p className="text-gray-600 text-sm whitespace-pre-line">{parseHtmlText(selectedSpot.parking)}</p>
                     </div>
                   </div>
                 )}
               </div>
-            ))}
+
+              {/* 카카오맵 길찾기 버튼 */}
+              <div className="pt-4 border-t border-gray-200 bg-white p-4 rounded-b-xl">
+                <button
+                  onClick={() => {
+                    openKakaoMapNavigation(selectedSpot.lat, selectedSpot.lng, selectedSpot.name);
+                    closeSpotModal();
+                  }}
+                  className="flex items-center justify-center w-full bg-yellow-300 hover:bg-yellow-400 text-gray-800 font-medium py-3 px-4 rounded-lg transition-colors"
+                >
+                  <img src={kakaoLogo} alt="카카오맵" className="w-5 h-5 mr-2" />
+                  카카오맵으로 길찾기
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
