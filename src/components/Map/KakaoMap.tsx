@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import whaleMarkerImage from '../../assets/spot/whale_marker-Photoroom.png';
 
 declare global {
   interface Window {
@@ -69,23 +70,22 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
         map = new kakao.maps.Map(containerRef.current, options);
 
         kakaoMarkers = markers.map((m, idx) => {
+          // 고래 마커 이미지 생성 (숫자가 포함된 이미지 사용)
+          const whaleMarker = new kakao.maps.MarkerImage(
+            whaleMarkerImage,
+            new kakao.maps.Size(50, 50), // 적절한 마커 크기
+            {
+              offset: new kakao.maps.Point(25, 25) // 마커 중심점
+            }
+          );
+
           const marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(m.lat, m.lng),
-            title: m.title || ''
+            title: m.title || '',
+            image: whaleMarker
           });
           marker.setMap(map);
-
-          if (showOrder) {
-            const content = `\n              <div style="position:relative;transform:translate(-50%, -120%);">\n                <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:#2563eb;color:#fff;font-size:12px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,0.2);">${idx + 1}</div>\n              </div>\n            `;
-            const overlay = new kakao.maps.CustomOverlay({
-              position: new kakao.maps.LatLng(m.lat, m.lng),
-              content,
-              yAnchor: 0,
-              zIndex: 10
-            });
-            overlay.setMap(map);
-            overlays.push(overlay);
-          }
+          
           return marker;
         });
 
