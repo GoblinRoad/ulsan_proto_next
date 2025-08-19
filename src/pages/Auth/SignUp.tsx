@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Eye, EyeOff, Loader, ArrowLeft, User } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import whaleToUlsanLogo from '../../assets/logo/whaleToUlsan_logo.png';
 
 const SignUp: React.FC = () => {
   const { signUp, signInWithKakao } = useAuth();
@@ -67,13 +68,12 @@ const SignUp: React.FC = () => {
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 animate-slideUp">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-xl">울</span>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              계정 만들기
-            </h2>
-            <p className="text-gray-600">울산 여행을 시작해보세요</p>
+            <img 
+              src={whaleToUlsanLogo} 
+              alt="웨일투울산" 
+              className="w-36 h-36 object-contain mx-auto mb-0"
+            />
+            <p className="text-sm text-gray-500 -mt-5">울산 여행을 시작해보세요</p>
           </div>
 
           {/* Alert Messages */}

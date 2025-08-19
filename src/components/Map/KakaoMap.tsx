@@ -1,4 +1,11 @@
 import React, { useEffect, useRef } from 'react';
+import whaleMarker1 from '../../assets/marker/whale_marker1.png';
+import whaleMarker2 from '../../assets/marker/whale_marker2.png';
+import whaleMarker3 from '../../assets/marker/whale_marker3.png';
+import whaleMarker4 from '../../assets/marker/whale_marker4.png';
+import whaleMarker5 from '../../assets/marker/whale_marker5.png';
+import whaleMarker6 from '../../assets/marker/whale_marker6.png';
+import whaleMarker7 from '../../assets/marker/whale_marker7.png';
 
 declare global {
   interface Window {
@@ -52,7 +59,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const appKey = (import.meta.env.REACT_APP_KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAO_MAP_APP_KEY) as string | undefined;
+    const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
     let map: any;
     let kakaoMarkers: any[] = [];
     let polyline: any | null = null;
@@ -69,23 +76,30 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
         map = new kakao.maps.Map(containerRef.current, options);
 
         kakaoMarkers = markers.map((m, idx) => {
+          // 순서에 맞는 고래 마커 이미지 선택
+          const markerImages = [
+            whaleMarker1, whaleMarker2, whaleMarker3, whaleMarker4, 
+            whaleMarker5, whaleMarker6, whaleMarker7
+          ];
+          
+          const selectedMarkerImage = markerImages[idx] || whaleMarker1; // 기본값은 whaleMarker1
+          
+          // 고래 마커 이미지 생성
+          const whaleMarker = new kakao.maps.MarkerImage(
+            selectedMarkerImage,
+            new kakao.maps.Size(29, 42), // 29x42 크기
+            {
+              offset: new kakao.maps.Point(14.5, 21) // 마커 중심점 (29/2, 42/2)
+            }
+          );
+
           const marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(m.lat, m.lng),
-            title: m.title || ''
+            title: m.title || '',
+            image: whaleMarker
           });
           marker.setMap(map);
-
-          if (showOrder) {
-            const content = `\n              <div style="position:relative;transform:translate(-50%, -120%);">\n                <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:#2563eb;color:#fff;font-size:12px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,0.2);">${idx + 1}</div>\n              </div>\n            `;
-            const overlay = new kakao.maps.CustomOverlay({
-              position: new kakao.maps.LatLng(m.lat, m.lng),
-              content,
-              yAnchor: 0,
-              zIndex: 10
-            });
-            overlay.setMap(map);
-            overlays.push(overlay);
-          }
+          
           return marker;
         });
 
@@ -123,14 +137,14 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
     };
   }, [center.lat, center.lng, markers, path, showOrder]);
 
-  const appKey = (import.meta.env.REACT_APP_KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAO_MAP_APP_KEY) as string | undefined;
+        const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
   const showFallback = !appKey;
 
   return (
     <div className="w-full rounded-xl overflow-hidden border border-gray-100 bg-gray-50" style={{ height }}>
       {showFallback ? (
         <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">
-          지도를 불러오려면 REACT_APP_KAKAOMAP_API_KEY 또는 VITE_KAKAO_MAP_APP_KEY를 설정해주세요.
+          지도를 불러오려면 KAKAOMAP_API_KEY 또는 VITE_KAKAOMAP_API_KEY를 설정해주세요.
         </div>
       ) : (
         <div ref={containerRef} className="w-full h-full" />
