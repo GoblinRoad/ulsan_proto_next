@@ -21,7 +21,11 @@ const Login: React.FC = () => {
     try {
       const { error } = await signIn(email, password);
       if (error) {
-        setError(error.message);
+        if (error.message.includes("Invalid login credentials")) {
+          setError("아이디나 비밀번호를 다시 확인해주세요.");
+        } else {
+          setError(error.message);
+        }
       } else {
         navigate("/");
       }
