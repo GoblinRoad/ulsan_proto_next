@@ -122,11 +122,6 @@ const useTourApi = (): UseTourApiResult => {
             const errorMessage = err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.';
             setError(errorMessage);
             console.error('Tour API Error:', err);
-
-            // 에러 발생 시 샘플 데이터 사용 (개발용)
-            if (import.meta.env.DEV) {
-                setSpots(getSampleData());
-            }
         } finally {
             setLoading(false);
         }
