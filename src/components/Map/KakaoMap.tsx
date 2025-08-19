@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import whaleMarkerImage from '../../assets/spot/whale_marker-Photoroom.png';
+import whaleMarker1 from '../../assets/marker/whale_marker1.png';
+import whaleMarker2 from '../../assets/marker/whale_marker2.png';
+import whaleMarker3 from '../../assets/marker/whale_marker3.png';
+import whaleMarker4 from '../../assets/marker/whale_marker4.png';
+import whaleMarker5 from '../../assets/marker/whale_marker5.png';
+import whaleMarker6 from '../../assets/marker/whale_marker6.png';
+import whaleMarker7 from '../../assets/marker/whale_marker7.png';
 
 declare global {
   interface Window {
@@ -70,12 +76,20 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
         map = new kakao.maps.Map(containerRef.current, options);
 
         kakaoMarkers = markers.map((m, idx) => {
-          // 고래 마커 이미지 생성 (숫자가 포함된 이미지 사용)
+          // 순서에 맞는 고래 마커 이미지 선택
+          const markerImages = [
+            whaleMarker1, whaleMarker2, whaleMarker3, whaleMarker4, 
+            whaleMarker5, whaleMarker6, whaleMarker7
+          ];
+          
+          const selectedMarkerImage = markerImages[idx] || whaleMarker1; // 기본값은 whaleMarker1
+          
+          // 고래 마커 이미지 생성
           const whaleMarker = new kakao.maps.MarkerImage(
-            whaleMarkerImage,
-            new kakao.maps.Size(50, 50), // 적절한 마커 크기
+            selectedMarkerImage,
+            new kakao.maps.Size(29, 42), // 29x42 크기
             {
-              offset: new kakao.maps.Point(25, 25) // 마커 중심점
+              offset: new kakao.maps.Point(14.5, 21) // 마커 중심점 (29/2, 42/2)
             }
           );
 
