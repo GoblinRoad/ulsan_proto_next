@@ -8,6 +8,7 @@ import 장생포고래문화특구이미지 from '../assets/spot/장생포고래
 import 울산문화의거리이미지 from '../assets/spot/울산문화의거리.jpg';
 import 대왕암출렁다리이미지 from '../assets/spot/대왕암출렁다리.jpg';
 import 일산해수욕장이미지 from '../assets/spot/일산해수욕장.jpg';
+import 보성학교전시관이미지 from '../assets/spot/보성학교전시관.jpg';
 
 export interface CourseSpotInfo {
   name: string;
@@ -44,6 +45,23 @@ const COURSE_SPOT_MAPPING: Record<string, string[]> = {
 
 // 관광지 이름으로 검색하는 함수 (searchKeyword2 사용)
 export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo | null> {
+  // 보성학교 전시관은 하드코딩된 정보 사용
+  if (spotName === '보성학교전시관') {
+    return {
+      name: '보성학교 전시관',
+      contentId: 'hardcoded_boseong',
+      lat: 35.500249,
+      lng: 129.432236,
+      image: 보성학교전시관이미지,
+      description: '울산광역시 동구에는 성세빈 선생이 세운 사립학교 울산 보성학교 터가 남아 있다. 울산 보성학교는 1909년 이전에 설립되었다가 일제의 탄압에 의해 폐교한 후 1922년 성세빈 선생의 노력과 지역민들의 기부금을 바탕으로 사립학교로 다시 문을 열었다. 울산 보성학교는 사립 교육 기관이면서도 항일 운동에 적극적으로 참여하는 등 사회 운동의 중심지 역할을 담당했다. 현재는 건물이 소실되어 자취를 찾아볼 수 없지만 \'보성학교 전시관\'을 방문하면 울산 보성학교의 역사와 울산 지역 독립운동사를 확인할 수 있다.',
+      address: '울산광역시 일산진7길 8',
+      tel: '0522093314',
+      useTime: '오전 9:00~오후 6:00',
+      restDate: '1월 1일, 매주 월요일 , 설날 연휴, 추석 연휴',
+      parking: '가능'
+    };
+  }
+
   const serviceKey = import.meta.env.VITE_TOURAPI_KEY;
   
   if (!serviceKey) {
@@ -202,6 +220,8 @@ export async function searchSpotByName(spotName: string): Promise<CourseSpotInfo
       imageUrl = 장생포고래문화특구이미지;
     } else if (spotName === '울산 문화의거리') {
       imageUrl = 울산문화의거리이미지;
+    } else if (spotName === '보성학교전시관') {
+      imageUrl = 보성학교전시관이미지;
     }
 
     return {
