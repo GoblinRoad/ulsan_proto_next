@@ -12,10 +12,11 @@ import PopularCourseDetail from "./pages/PopularCourses/PopularCourseDetail";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 import AuthCallback from "./pages/Auth/AuthCallback";
-import PrivacySettings from "./pages/Profile/components/PrivacySettings";
+import PrivacySettings from "./components/Profile/PrivacySettings";
 import ScrollToTop from "./components/ScrollToTop";
 
 import "./App.css";
+import SpotDetail from "./pages/CheckIn/SpotDetail.tsx";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
                         path="/popular/:id"
                         element={<PopularCourseDetail />}
                       />
+                      <Route path="/spot/:id" element={<SpotDetail />} />
                     </Routes>
                   </Layout>
                 }

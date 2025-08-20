@@ -87,6 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       email,
       password,
     });
+    sessionStorage.setItem("testMode", "false")
+    sessionStorage.setItem("bypassLocationCheck", "false")
     return { data, error };
   };
 
@@ -113,12 +115,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       },
     });
     if (error) throw error;
+    sessionStorage.setItem("testMode", "false")
+    sessionStorage.setItem("bypassLocationCheck", "false")
   };
 
   // 로그아웃
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     clearSessionCookies();
+    sessionStorage.setItem("testMode", "false")
+    sessionStorage.setItem("bypassLocationCheck", "false");
     if (error) throw error;
   };
 

@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   ChevronRight,
 } from "lucide-react";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const PrivacySettings: React.FC = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CategoryFilter, CategoryCounts } from '../../../types/tourist';
+import { CategoryFilter, CategoryCounts } from '../../types/tourist';
 
 interface FilterTabsProps {
   filter: CategoryFilter;

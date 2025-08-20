@@ -1,5 +1,5 @@
 import React from 'react';
-import { DistrictFilter, SpotCounts } from '../../../types/tourist';
+import { DistrictFilter, SpotCounts } from '../../types/tourist';
 
 interface DistrictFilterTabsProps {
     filter: DistrictFilter;

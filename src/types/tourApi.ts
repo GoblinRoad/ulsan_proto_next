@@ -58,8 +58,8 @@ export interface TourApiDetailItem {
 }
 
 export interface TourApiIntroItem {
-    contentid: string;
-    contenttypeid: string;
+    contentid?: string;
+    contenttypeid?: string;
     scale?: string;
     usefee?: string;
     discountinfo?: string;
@@ -173,6 +173,13 @@ export interface TourApiIntroItem {
     smoking?: string;
     treatmenu?: string;
     lcnsno?: string;
+}
+
+export interface TourApiIntroItem {
+    contentid?: string
+    contenttypeid?: string
+    description: string
+    // 나머지 필드
 }
 
 export interface TourApiResponse {
