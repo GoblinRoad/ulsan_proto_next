@@ -1,17 +1,26 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
 import MapView from './components/MapView';
 import FilterTabs from './components/FilterTabs';
 import DistrictFilterTabs from './components/DistrictFilterTabs';
 import SpotList from './components/SpotList';
+import {TEST_TOURIST_SPOTS} from "@/data/testData"
 import useTourApi from '../../hooks/useTourApi';
 import { CategoryFilter, DistrictFilter, CategoryCounts, SpotCounts } from '../../types/tourist';
 
 const Map: React.FC = () => {
   const { spots, loading, error, refetch } = useTourApi();
+  const [checkedInSpots, setCheckedInSpots] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
   const [districtFilter, setDistrictFilter] = useState<DistrictFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
+
+  const handleCheckInComplete = useCallback((spotId: string) => {
+    setCheckedInSpots(prev => new Set([...prev, spotId]));
+    // 선택적으로 전체 데이터 새로고침
+    refetch();
+  }, [refetch]);
+
 
   // 두 단계 필터링된 관광지
   const filteredSpots = useMemo(() => {
@@ -179,8 +188,16 @@ const Map: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
           {viewMode === 'map' ? (
               <MapView spots={filteredSpots} />
+          ) : sessionStorage.getItem("testMode") === "true" ? (
+              <SpotList
+                  spots={TEST_TOURIST_SPOTS}
+                  onCheckInComplete={handleCheckInComplete}
+              />
           ) : (
-              <SpotList spots={filteredSpots} />
+              <SpotList
+                  spots={filteredSpots}
+                  onCheckInComplete={handleCheckInComplete}
+              />
           )}
         </div>
       </div>

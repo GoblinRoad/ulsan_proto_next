@@ -1,6 +1,6 @@
 import React from 'react';
 import { HelpCircle, Settings as SettingsIcon, LogOut } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
 
 const Settings: React.FC = () => {

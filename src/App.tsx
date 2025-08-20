@@ -15,6 +15,7 @@ import AuthCallback from "./pages/Auth/AuthCallback";
 import ScrollToTop from "./components/ScrollToTop";
 
 import "./App.css";
+import SpotDetail from "./pages/CheckIn/SpotDetail.tsx";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                         path="/popular/:id"
                         element={<PopularCourseDetail />}
                       />
+                      <Route path="/spot/:id" element={<SpotDetail />} />
                     </Routes>
                   </Layout>
                 }
