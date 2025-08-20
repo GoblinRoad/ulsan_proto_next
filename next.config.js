@@ -9,7 +9,7 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     images: {
-        domains: ["localhost"],
+        domains: ["localhost", "ulsantour.vercel.app"],
         unoptimized: true,
     },
 }
