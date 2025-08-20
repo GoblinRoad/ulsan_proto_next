@@ -6,17 +6,33 @@ import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const allowedOrigins = [
+    "https://ulsantour.vercel.app",
+    "http://localhost:5173",
+];
 
-const corsHeaders = {
-    "Access-Control-Allow-Origin": "https://ulsantour.vercel.app, http://localhost:5173",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-};
-
-export async function OPTIONS() {
-    return NextResponse.json({}, { headers: corsHeaders });
+function getCorsHeaders(origin: string | null) {
+    if (origin && allowedOrigins.includes(origin)) {
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        };
+    }
+    return {
+        "Access-Control-Allow-Origin": allowedOrigins[0], // 기본값
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
 }
 
+// -------------------------------
+// 🔹 OPTIONS (preflight)
+// -------------------------------
+export async function OPTIONS(req: Request) {
+    const origin = req.headers.get("origin");
+    return NextResponse.json({}, { headers: getCorsHeaders(origin) });
+}
 // 1️⃣ 사용자 인증
 async function getAuthUserId() {
     const supabase = createServerComponentClient({ cookies });
@@ -137,7 +153,7 @@ export async function POST(request: Request) {
                 message: "체크인이 완료되었습니다!",
                 data: { checkInId: checkInRecord.id, photoUrl, coinsEarned: 10 },
             },
-                { headers: corsHeaders });
+                { headers: getCorsHeaders(origin) });
 
         } catch (uploadOrDbError) {
             // 업로드 실패 시 임시 DB 삭제
