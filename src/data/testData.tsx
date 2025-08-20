@@ -2,7 +2,7 @@ import type { TouristSpot } from "../types/tourist"
 import type {TourApiDetailItem, TourApiIntroItem} from "../types/tourApi"
 
 // 개발/테스트 환경 확인
-export const isDevelopment = import.meta.env.DEV || import.meta.env.NODE_ENV === "development"
+// export const isDevelopment = import.meta.env.DEV || import.meta.env.NODE_ENV === "development"
 
 // 현재 위치 기준 테스트 관광지 데이터
 export const TEST_CURRENT_LOCATION = {

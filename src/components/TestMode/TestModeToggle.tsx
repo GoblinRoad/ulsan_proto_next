@@ -3,16 +3,16 @@
 import type React from "react"
 import { useState } from "react"
 import { Settings, MapPin, CheckCircle, XCircle } from "lucide-react"
-import { isDevelopment, TEST_CURRENT_LOCATION } from "../../data/testData"
+import { TEST_CURRENT_LOCATION } from "../../data/testData"
 import { useApp } from "@/contexts/AppContext"
 
 const TestModeToggle: React.FC = () => {
     const { isTestMode, bypassLocationCheck, toggleTestMode, setBypassLocationCheck } = useApp()
     const [showPanel, setShowPanel] = useState(false)
 
-    if (!isDevelopment) {
-        return null
-    }
+    // if (!isDevelopment) {
+    //     return null
+    // }
 
     return (
         <div className="relative">
