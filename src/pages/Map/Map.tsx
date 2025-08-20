@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
-import MapView from './components/MapView';
-import FilterTabs from './components/FilterTabs';
-import DistrictFilterTabs from './components/DistrictFilterTabs';
-import SpotList from './components/SpotList';
+import MapView from '@/components/Map/MapView';
+import FilterTabs from '@/components/Map/FilterTabs';
+import DistrictFilterTabs from '@/components/Map/DistrictFilterTabs';
+import SpotList from '@/components/Map/SpotList';
 import {TEST_TOURIST_SPOTS} from "@/data/testData"
-import SearchInput from './components/SearchInput';
-import useTourApi from '../../hooks/useTourApi';
-import { CategoryFilter, DistrictFilter, CategoryCounts, SpotCounts } from '../../types/tourist';
+import SearchInput from '@/components/Map/SearchInput';
+import useTourApi from '@/hooks/useTourApi';
+import { CategoryFilter, DistrictFilter, CategoryCounts, SpotCounts } from '@/types/tourist';
 
 const Map: React.FC = () => {
   const { spots, loading, error, refetch } = useTourApi();

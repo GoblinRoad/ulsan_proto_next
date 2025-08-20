@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useApp } from "../../contexts/AppContext";
-import { useAuth } from "../../contexts/AuthContext";
-import UserStats from "./components/UserStats";
-import Settings from "./components/Settings";
-import RecentActivity from "./components/RecentActivity.tsx";
-import VoucherDetail from "./components/VoucherDetail.tsx";
-import MyVouchers from "./components/MyVouchers.tsx";
-import VouchersList from "./components/VouchersList.tsx";
+import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
+import UserStats from "@/components/Profile/UserStats";
+import Settings from "@/components/Profile/Settings";
+import RecentActivity from "@/components/Profile/RecentActivity.tsx";
+import VoucherDetail from "@/components/Profile/VoucherDetail.tsx";
+import MyVouchers from "@/components/Profile/MyVouchers.tsx";
+import VouchersList from "@/components/Profile/VouchersList.tsx";
 import { Link } from "react-router-dom";
 import { User, LogIn } from "lucide-react";
 

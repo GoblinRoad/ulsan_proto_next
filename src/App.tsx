@@ -12,7 +12,7 @@ import PopularCourseDetail from "./pages/PopularCourses/PopularCourseDetail";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 import AuthCallback from "./pages/Auth/AuthCallback";
-import PrivacySettings from "./pages/Profile/components/PrivacySettings";
+import PrivacySettings from "./components/Profile/PrivacySettings";
 import ScrollToTop from "./components/ScrollToTop";
 
 import "./App.css";

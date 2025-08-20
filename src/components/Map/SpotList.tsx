@@ -17,7 +17,7 @@ import {
   Route,
   Calendar,
 } from "lucide-react"
-import type { TouristSpot } from "../../../types/tourist"
+import type { TouristSpot } from "../../types/tourist"
 import { testModeManager } from "@/data/testData"
 
 interface SpotListProps {
