@@ -196,15 +196,14 @@ export class TestModeManager {
     }
 
     isTestMode(): boolean {
-        return isDevelopment && this.testMode
+        return this.testMode
     }
 
     enableTestMode(): void {
-        if (isDevelopment) {
             this.testMode = true
             this.saveToStorage()
             console.log("[v0] 테스트 모드가 활성화되었습니다.")
-        }
+
     }
 
     disableTestMode(): void {
