@@ -4,6 +4,7 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Shield,
+  Key,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +27,11 @@ const Settings: React.FC = () => {
       icon: Shield,
       label: "개인정보 및 보안",
       action: () => navigate("/privacy-settings"),
+    },
+    {
+      icon: Key,
+      label: "비밀번호 변경",
+      action: () => navigate("/change-password"),
     },
     { icon: HelpCircle, label: "도움말", action: () => {} },
     { icon: SettingsIcon, label: "설정", action: () => {} },

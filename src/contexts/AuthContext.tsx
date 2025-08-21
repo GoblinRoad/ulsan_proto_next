@@ -11,6 +11,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<any>;
   signOut: () => Promise<void>;
   signInWithKakao: () => Promise<void>;
+  changePassword: (newPassword: string) => Promise<any>;
+  resetPassword: (email: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,6 +130,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (error) throw error;
   };
 
+  // 비밀번호 변경
+  const changePassword = async (newPassword: string) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    return { data, error };
+  };
+
+  // 비밀번호 재설정 (이메일 발송)
+  const resetPassword = async (email: string) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { data, error };
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -138,6 +156,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         signUp,
         signOut,
         signInWithKakao,
+        changePassword,
+        resetPassword,
       }}
     >
       {children}
