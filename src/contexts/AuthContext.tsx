@@ -140,10 +140,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // 비밀번호 재설정 (이메일 발송)
   const resetPassword = async (email: string) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    return { data, error };
+    try {
+      // 1단계: 서버에서 사용자 검증
+      const response = await fetch('/api/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { data: null, error: { message: result.message } };
+      }
+
+      // 2단계: 검증 통과시 클라이언트에서 이메일 발송
+      if (result.canSendEmail) {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+        
+        if (error) {
+          return { data: null, error: { message: "이메일 발송 중 오류가 발생했습니다." } };
+        }
+        
+        return { data: { message: "비밀번호 재설정 이메일이 발송되었습니다." }, error: null };
+      }
+
+      return { data: result, error: null };
+    } catch (error) {
+      return { 
+        data: null, 
+        error: { message: "네트워크 오류가 발생했습니다." } 
+      };
+    }
   };
 
   return (

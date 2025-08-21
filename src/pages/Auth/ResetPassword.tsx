@@ -20,11 +20,7 @@ const ResetPassword: React.FC = () => {
     try {
       const { error } = await resetPassword(email);
       if (error) {
-        if (error.message.includes("rate limit")) {
-          setError("너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.");
-        } else {
-          setError("비밀번호 재설정 이메일 발송 중 오류가 발생했습니다.");
-        }
+        setError(error.message);
       } else {
         setSuccess(true);
       }
@@ -48,7 +44,9 @@ const ResetPassword: React.FC = () => {
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
-              <h1 className="text-lg font-bold text-gray-800">비밀번호 재설정</h1>
+              <h1 className="text-lg font-bold text-gray-800">
+                비밀번호 재설정
+              </h1>
             </div>
           </div>
         </div>
@@ -58,11 +56,11 @@ const ResetPassword: React.FC = () => {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Mail className="w-10 h-10 text-green-500" />
             </div>
-            
+
             <h2 className="text-2xl font-bold text-gray-800 mb-4">
               이메일을 확인해주세요
             </h2>
-            
+
             <p className="text-gray-600 mb-6 leading-relaxed">
               <span className="font-medium text-blue-600">{email}</span>로
               <br />
@@ -110,7 +108,9 @@ const ResetPassword: React.FC = () => {
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Key className="w-10 h-10 text-blue-500" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">비밀번호 재설정</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">
+              비밀번호 재설정
+            </h2>
             <p className="text-sm text-gray-500">
               가입하신 이메일 주소를 입력해주세요
               <br />
