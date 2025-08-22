@@ -110,6 +110,7 @@ async function insertCheckIn(userId: string, spotId: string, spotName: string, p
 
 // 5️⃣ POST 핸들러
 export async function POST(request: Request) {
+    const origin = request.headers.get("origin");
     try {
         const formData = await request.formData();
 
@@ -165,7 +166,7 @@ export async function POST(request: Request) {
 
     } catch (err) {
         console.error("체크인 처리 예외:", err);
-        return NextResponse.json({ success: false, message: err instanceof Error ? err.message : "체크인 처리 중 오류" }, { status: 500 });
+        return NextResponse.json({ success: false, message: err instanceof Error ? err.message : "체크인 처리 중 오류" }, { status: 500, headers: getCorsHeaders(origin) });
     }
 }
 

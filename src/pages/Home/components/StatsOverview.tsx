@@ -16,7 +16,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({
     {
       icon: MapPin,
       label: '방문 완료',
-      value: `${visitedSpots}/${totalSpots}`,
+      value: `${visitedSpots}`,
       color: 'from-green-400 to-emerald-400',
       bgColor: 'bg-green-50'
     },

@@ -17,6 +17,8 @@ interface MarkerInfo {
   lat: number;
   lng: number;
   title?: string;
+  address?: string;
+  contentId?: string;
 }
 
 interface KakaoMapProps {
@@ -25,6 +27,7 @@ interface KakaoMapProps {
   path?: { lat: number; lng: number }[]; // 경로 폴리라인
   height?: number;
   showOrder?: boolean; // 마커에 1..N 순번 표시
+  customMarker?: string; // 커스텀 마커 이미지 경로
 }
 
 function loadKakaoScript(appKey?: string): Promise<void> {
@@ -55,8 +58,47 @@ function loadKakaoScript(appKey?: string): Promise<void> {
   });
 }
 
-const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false }) => {
+const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false, customMarker }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // 인포윈도우 내용 생성 함수
+  const createInfoWindowContent = (marker: MarkerInfo) => {
+    return `
+      <div id="info-${marker.contentId || 'default'}" style="
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 250px;
+        max-width: 320px;
+        font-family: 'Pretendard', sans-serif;
+        border: 1px solid #e5e7eb;
+        position: relative;
+      ">
+        <div style="margin-bottom: 8px;">
+          <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1F2937; line-height: 1.3;">
+            ${marker.title || ''}
+          </h4>
+        </div>
+        ${marker.address ? `
+          <div style="font-size: 12px; color: #6B7280; line-height: 1.4;">
+            📍 ${marker.address}
+          </div>
+        ` : ''}
+        <div style="
+          position: absolute;
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-top: 8px solid white;
+        "></div>
+      </div>
+    `;
+  };
 
   useEffect(() => {
     const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
@@ -76,13 +118,17 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
         map = new kakao.maps.Map(containerRef.current, options);
 
         kakaoMarkers = markers.map((m, idx) => {
-          // 순서에 맞는 고래 마커 이미지 선택
-          const markerImages = [
-            whaleMarker1, whaleMarker2, whaleMarker3, whaleMarker4, 
-            whaleMarker5, whaleMarker6, whaleMarker7
-          ];
-          
-          const selectedMarkerImage = markerImages[idx] || whaleMarker1; // 기본값은 whaleMarker1
+          // 커스텀 마커가 있으면 사용, 없으면 순서에 맞는 고래 마커 이미지 선택
+          let selectedMarkerImage;
+          if (customMarker) {
+            selectedMarkerImage = customMarker;
+          } else {
+            const markerImages = [
+              whaleMarker1, whaleMarker2, whaleMarker3, whaleMarker4, 
+              whaleMarker5, whaleMarker6, whaleMarker7
+            ];
+            selectedMarkerImage = markerImages[idx] || whaleMarker1; // 기본값은 whaleMarker1
+          }
           
           // 고래 마커 이미지 생성
           const whaleMarker = new kakao.maps.MarkerImage(
@@ -96,9 +142,50 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
           const marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(m.lat, m.lng),
             title: m.title || '',
-            image: whaleMarker
+            image: whaleMarker,
+            clickable: true
           });
           marker.setMap(map);
+
+          // 인포윈도우 생성
+          const content = createInfoWindowContent(m);
+          const overlay = new kakao.maps.CustomOverlay({
+            content: content,
+            map: null, // 기본적으로 숨김
+            position: new kakao.maps.LatLng(m.lat, m.lng),
+            clickable: true,
+            yAnchor: 1.2 // 마커 위로 표시
+          });
+
+          // 마커 클릭 이벤트
+          kakao.maps.event.addListener(marker, 'click', function () {
+            // 다른 오버레이들 닫기
+            overlays.forEach(overlay => {
+              if (overlay instanceof kakao.maps.CustomOverlay) {
+                overlay.setMap(null);
+              }
+            });
+            
+            // 현재 오버레이 토글
+            if (overlay.getMap()) {
+              overlay.setMap(null);
+            } else {
+              // 지도를 해당 마커 위치로 중앙 이동
+              map.panTo(new kakao.maps.LatLng(m.lat, m.lng));
+              overlay.setMap(map);
+            }
+          });
+
+          // 지도 클릭 시 오버레이 닫기
+          kakao.maps.event.addListener(map, 'click', function () {
+            overlays.forEach(overlay => {
+              if (overlay instanceof kakao.maps.CustomOverlay) {
+                overlay.setMap(null);
+              }
+            });
+          });
+
+          overlays.push(overlay);
           
           return marker;
         });
@@ -135,7 +222,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
       overlays.forEach(o => o.setMap(null));
       map = null;
     };
-  }, [center.lat, center.lng, markers, path, showOrder]);
+  }, [center.lat, center.lng, markers, path, showOrder, customMarker]);
 
         const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
   const showFallback = !appKey;
