@@ -11,11 +11,38 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text, className = "" }) => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // 모던 브라우저의 Clipboard API 사용
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // fallback: 구형 브라우저나 모바일을 위한 방법
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.error('복사 실패:', err);
+          // 사용자에게 수동 복사 안내
+          alert('복사할 내용: ' + text);
+        }
+        
+        document.body.removeChild(textArea);
+      }
     } catch (err) {
       console.error('복사 실패:', err);
+      // 최종 fallback: 사용자에게 수동 복사 안내
+      alert('복사할 내용: ' + text);
     }
   };
 

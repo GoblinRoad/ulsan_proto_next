@@ -45,9 +45,20 @@ const SpotDetail: React.FC = () => {
           const selectedSpot = spots[index];
           setSpot(selectedSpot);
           
-          // 이미지 가져오기
-          const images = await getSpotImages(selectedSpot.contentId);
-          setSpotImages(images);
+          // 이미지 가져오기를 비동기로 실행 (로딩 상태에 영향 주지 않음)
+          getSpotImages(selectedSpot.contentId)
+            .then(images => {
+              setSpotImages(images);
+              // 이미지 프리로딩
+              images.forEach(image => {
+                const img = new Image();
+                img.src = image.originimgurl;
+              });
+            })
+            .catch(error => {
+              console.error('이미지 로드 실패:', error);
+              // 이미지 로드 실패해도 기본 이미지 사용
+            });
         }
       } catch (error) {
         console.error('관광지 상세정보 로드 실패:', error);
