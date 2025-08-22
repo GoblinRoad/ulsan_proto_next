@@ -5,6 +5,7 @@ import KakaoMap from '../../components/Map/KakaoMap';
 import ImageCarousel from '../../components/Carousel/ImageCarousel';
 import CopyButton from '../../components/Buttons/CopyButton';
 import { getFestivalIntro, getFestivalInfo, getFestivalsWithCache, getFestivalImages, FestivalImage } from '../../services/festivalService';
+import kakaoLogo from '../../assets/images/kakaotalk_logo_icon.png';
 
 interface FestivalDetail {
   contentId: string;
@@ -426,10 +427,10 @@ const FestivalDetail: React.FC = () => {
                 {/* 카카오 지도 길찾기 버튼 */}
                 <button
                   onClick={() => openKakaoMapNavigation(parseFloat(festival.mapy), parseFloat(festival.mapx), festival.title)}
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[#FEE500] hover:bg-[#FDD800] text-black px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
                 >
                   <img 
-                    src="/src/assets/images/kakaotalk_logo_icon.png" 
+                    src={kakaoLogo} 
                     alt="KakaoTalk" 
                     className="w-5 h-5"
                   />
