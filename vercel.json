@@ -6,7 +6,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://ulsantour.vercel.app/:oath*"
+      "destination": "https://ulsantour.vercel.app:3000/:path*"
     }
   ],
   "headers": [
