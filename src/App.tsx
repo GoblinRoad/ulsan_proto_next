@@ -9,6 +9,9 @@ import Rewards from "./pages/Rewards/Rewards";
 import Profile from "./pages/Profile/Profile";
 import PopularCourses from "./pages/PopularCourses/PopularCourses";
 import PopularCourseDetail from "./pages/PopularCourses/PopularCourseDetail";
+import Festivals from "./pages/Festivals/Festivals";
+import FestivalDetail from "./pages/Festivals/FestivalDetail";
+import SpotDetail from "./pages/Spots/SpotDetail";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 import AuthCallback from "./pages/Auth/AuthCallback";
@@ -18,7 +21,6 @@ import PrivacySettings from "./components/Profile/PrivacySettings";
 import ScrollToTop from "./components/ScrollToTop";
 
 import "./App.css";
-import SpotDetail from "./pages/CheckIn/SpotDetail.tsx";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy-settings" element={<PrivacySettings />} />
+              <Route path="/festival/:id" element={<FestivalDetail />} />
+              <Route path="/spot/:courseName/:spotIndex" element={<SpotDetail />} />
 
               {/* 메인 앱 페이지들 (레이아웃 포함) */}
               <Route
@@ -52,7 +56,8 @@ function App() {
                         path="/popular/:id"
                         element={<PopularCourseDetail />}
                       />
-                      <Route path="/spot/:id" element={<SpotDetail />} />
+                      <Route path="/festivals" element={<Festivals />} />
+                      <Route path="/checkin/spot/:id" element={<SpotDetail />} />
                     </Routes>
                   </Layout>
                 }

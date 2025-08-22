@@ -190,7 +190,7 @@ const SpotList: React.FC<SpotListProps> = ({ spots, onCheckInComplete }) => {
                   ) : (
                       <div className="flex items-center space-x-2">
                         <Link
-                            to={`/spot/${spot.id}`}
+                            to={`/checkin/spot/${spot.id}`}
                             className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-gray-200 transition-colors"
                         >
                           상세보기
