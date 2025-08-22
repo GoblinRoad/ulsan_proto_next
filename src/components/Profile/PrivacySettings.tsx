@@ -7,6 +7,7 @@ import {
   FileText,
   AlertTriangle,
   ChevronRight,
+  Key,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -163,16 +164,41 @@ const PrivacySettings: React.FC = () => {
             <h3 className="text-lg font-bold text-gray-800">계정 관리</h3>
           </div>
 
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="w-full p-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors animate-slideUp"
-            style={{ animationDelay: "0.5s" }}
-          >
-            <div className="text-sm font-medium">회원 탈퇴</div>
-            <div className="text-xs text-red-400 mt-1">
-              계정 및 모든 데이터가 영구적으로 삭제됩니다
-            </div>
-          </button>
+          <div className="space-y-1">
+            {/* 비밀번호 변경 (이메일 로그인 사용자만) */}
+            {getLoginMethod() === "이메일 로그인" && (
+              <button
+                onClick={() => navigate("/change-password")}
+                className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-lg transition-colors animate-slideUp"
+                style={{ animationDelay: "0.4s" }}
+              >
+                <div className="flex items-center space-x-3">
+                  <Key className="w-4 h-4 text-blue-600" />
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">
+                      비밀번호 변경
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      계정 보안을 위해 정기적으로 변경해주세요
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </button>
+            )}
+
+            {/* 회원 탈퇴 */}
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="w-full p-3 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors animate-slideUp"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <div className="text-sm font-medium">회원 탈퇴</div>
+              <div className="text-xs text-red-400 mt-1">
+                계정 및 모든 데이터가 영구적으로 삭제됩니다
+              </div>
+            </button>
+          </div>
         </div>
       </div>
 
