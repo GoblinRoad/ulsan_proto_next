@@ -178,6 +178,36 @@ const FestivalDetail: React.FC = () => {
     return content.replace(/<br\s*\/?>/gi, '\n');
   };
 
+  // 카카오맵으로 길찾기 이동하는 함수
+  const openKakaoMapNavigation = (lat: number, lng: number, name: string) => {
+    // 사용자 현재 위치 가져오기
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          const url = `http://m.map.kakao.com/scheme/route?sp=${userLat},${userLng}&ep=${lat},${lng}&by=car`;
+          window.open(url, '_blank');
+        },
+        (error) => {
+          console.error('위치 정보를 가져올 수 없습니다:', error);
+          // 위치 정보를 가져올 수 없으면 울산 시청을 출발지로 사용
+          const fallbackUrl = `http://m.map.kakao.com/scheme/route?sp=35.538,129.311&ep=${lat},${lng}&by=car`;
+          window.open(fallbackUrl, '_blank');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5분
+        }
+      );
+    } else {
+      // Geolocation을 지원하지 않는 경우 울산 시청을 출발지로 사용
+      const fallbackUrl = `http://m.map.kakao.com/scheme/route?sp=35.538,129.311&ep=${lat},${lng}&by=car`;
+      window.open(fallbackUrl, '_blank');
+    }
+  };
+
   return (
     <div className="relative">
       {/* 상단 네비게이션 */}
@@ -389,10 +419,7 @@ const FestivalDetail: React.FC = () => {
                 
                 {/* 카카오 지도 길찾기 버튼 */}
                 <button
-                  onClick={() => {
-                    const url = `https://map.kakao.com/link/to/${festival.title},${festival.mapy},${festival.mapx}`;
-                    window.open(url, '_blank');
-                  }}
+                  onClick={() => openKakaoMapNavigation(parseFloat(festival.mapy), parseFloat(festival.mapx), festival.title)}
                   className="w-full bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
                 >
                   <img 
