@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Phone, Loader2, Navigation, Clock, Coins } from 'lucide-react';
 import KakaoMap from '../../components/Map/KakaoMap';
 import ImageCarousel from '../../components/Carousel/ImageCarousel';
+import CopyButton from '../../components/Buttons/CopyButton';
 import { getFestivalIntro, getFestivalInfo, getFestivalsWithCache, getFestivalImages, FestivalImage } from '../../services/festivalService';
 
 interface FestivalDetail {
@@ -270,89 +271,107 @@ const FestivalDetail: React.FC = () => {
               </div>
             )}
 
-            {/* 행사 소개 및 내용 */}
+            {/* 행사소개 */}
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">행사소개</h3>
+              <div className="text-base leading-relaxed text-gray-700">
+                제21회 울산 민족예술제 도깨비난장은 예술인들이 주체가 되어 기획·운영하는 지역 문화예술 행사이다. 
+                이번 축제는 '이곳저곳에서 살아가던 도깨비들이 한 곳에 모이면 비밀의 문이 열린다'는 설정을 기반으로 
+                도심 속에서 펼쳐지는 공연과 체험 프로그램을 구성하였다. 행사는 울산 도심 공간을 무대로 다양한 예술 공연, 
+                시민 참여형 체험 활동, 전시와 부스 운영 등을 진행하는 방식으로 운영된다.
+              </div>
+            </div>
+
+            {/* 행사내용 */}
             {festivalInfo.length > 0 && (
-              <div className="space-y-4">
-                {festivalInfo.map((info, index) => (
-                  <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h3 className="text-2xl font-bold mb-3 text-gray-800">
-                      {info.infoname}
-                    </h3>
-                    <div className="text-base leading-relaxed text-gray-700 whitespace-pre-line">
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">행사내용</h3>
+                <div className="space-y-3">
+                  {festivalInfo.map((info, index) => (
+                    <div key={index} className="text-base leading-relaxed text-gray-700 whitespace-pre-line">
                       {formatContent(info.infotext)}
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
             {/* 기본 정보 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {festival.addr1 && (
-                <div className="flex items-start space-x-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                  <div>
-                    <p className="font-semibold text-lg text-gray-800">주소</p>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">기본 정보</h3>
+              <div className="space-y-4">
+                {festival.addr1 && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-lg text-gray-800">주소</p>
+                      <div className="flex items-center">
+                        <p className="text-base text-gray-700">
+                          {festival.addr1}
+                          {festival.addr2 && ` ${festival.addr2}`}
+                        </p>
+                        <CopyButton text={`${festival.addr1}${festival.addr2 ? ` ${festival.addr2}` : ''}`} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-start space-x-3">
+                  <Calendar className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg text-gray-800">기간</p>
                     <p className="text-base text-gray-700">
-                      {festival.addr1}
-                      {festival.addr2 && ` ${festival.addr2}`}
+                      {formatDate(festival.eventstartdate)}
+                      {festival.eventstartdate !== festival.eventenddate && 
+                        ` - ${formatDate(festival.eventenddate)}`
+                      }
                     </p>
                   </div>
                 </div>
-              )}
 
-              <div className="flex items-start space-x-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <Calendar className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                <div>
-                  <p className="font-semibold text-lg text-gray-800">기간</p>
-                  <p className="text-base text-gray-700">
-                    {formatDate(festival.eventstartdate)}
-                    {festival.eventstartdate !== festival.eventenddate && 
-                      ` - ${formatDate(festival.eventenddate)}`
-                    }
-                  </p>
-                </div>
+                {festival.tel && (
+                  <div className="flex items-start space-x-3">
+                    <Phone className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-lg text-gray-800">연락처</p>
+                      <div className="flex items-center">
+                        <p className="text-base text-gray-700">{festival.tel}</p>
+                        <CopyButton text={festival.tel} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {festivalIntro?.playtime && (
+                  <div className="flex items-start space-x-3">
+                    <Clock className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-lg text-gray-800">운영시간</p>
+                      <p className="text-base text-gray-700">{festivalIntro.playtime}</p>
+                    </div>
+                  </div>
+                )}
+
+                {festivalIntro?.eventplace && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-lg text-gray-800">행사장소</p>
+                      <p className="text-base text-gray-700">{festivalIntro.eventplace}</p>
+                    </div>
+                  </div>
+                )}
+
+                {festivalIntro?.usetimefestival && (
+                  <div className="flex items-start space-x-3">
+                    <Coins className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-lg text-gray-800">이용요금</p>
+                      <p className="text-base text-gray-700 whitespace-pre-line">{formatContent(festivalIntro.usetimefestival)}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-
-              {festival.tel && (
-                <div className="flex items-start space-x-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <Phone className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                  <div>
-                    <p className="font-semibold text-lg text-gray-800">연락처</p>
-                    <p className="text-base text-gray-700">{festival.tel}</p>
-                  </div>
-                </div>
-              )}
-
-              {festivalIntro?.playtime && (
-                <div className="flex items-start space-x-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <Clock className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                  <div>
-                    <p className="font-semibold text-lg text-gray-800">운영시간</p>
-                    <p className="text-base text-gray-700">{festivalIntro.playtime}</p>
-                  </div>
-                </div>
-              )}
-
-              {festivalIntro?.eventplace && (
-                <div className="flex items-start space-x-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                  <div>
-                    <p className="font-semibold text-lg text-gray-800">행사장소</p>
-                    <p className="text-base text-gray-700">{festivalIntro.eventplace}</p>
-                  </div>
-                </div>
-              )}
-
-              {festivalIntro?.usetimefestival && (
-                <div className="flex items-start space-x-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <Coins className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                  <div>
-                    <p className="font-semibold text-lg text-gray-800">이용요금</p>
-                    <p className="text-base text-gray-700 whitespace-pre-line">{formatContent(festivalIntro.usetimefestival)}</p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* 카카오 지도 */}
