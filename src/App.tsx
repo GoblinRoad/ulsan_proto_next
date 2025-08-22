@@ -12,6 +12,8 @@ import PopularCourseDetail from "./pages/PopularCourses/PopularCourseDetail";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 import AuthCallback from "./pages/Auth/AuthCallback";
+import ChangePassword from "./pages/Auth/ChangePassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
 import PrivacySettings from "./components/Profile/PrivacySettings";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -30,6 +32,8 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/change-password" element={<ChangePassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy-settings" element={<PrivacySettings />} />
 
               {/* 메인 앱 페이지들 (레이아웃 포함) */}

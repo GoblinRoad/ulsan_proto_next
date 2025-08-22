@@ -162,8 +162,18 @@ const Login: React.FC = () => {
             />
           </button>
 
+          {/* Password Reset Link */}
+          <div className="mt-4 text-center">
+            <Link
+              to="/reset-password"
+              className="text-gray-500 text-sm hover:text-gray-700 hover:underline"
+            >
+              비밀번호를 잊으셨나요?
+            </Link>
+          </div>
+
           {/* Sign Up Link */}
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <p className="text-gray-600">
               계정이 없으신가요?{" "}
               <Link
