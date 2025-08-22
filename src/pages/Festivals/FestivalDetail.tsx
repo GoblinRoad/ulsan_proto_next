@@ -411,7 +411,13 @@ const FestivalDetail: React.FC = () => {
                 <div className="h-64 rounded-lg overflow-hidden mb-3">
                   <KakaoMap
                     center={{ lat: parseFloat(festival.mapy), lng: parseFloat(festival.mapx) }}
-                    markers={[{ lat: parseFloat(festival.mapy), lng: parseFloat(festival.mapx), title: festival.title }]}
+                    markers={[{ 
+                      lat: parseFloat(festival.mapy), 
+                      lng: parseFloat(festival.mapx), 
+                      title: festival.title,
+                      address: festival.addr1,
+                      contentId: festival.contentId
+                    }]}
                     height={256}
                     showOrder={false}
                   />

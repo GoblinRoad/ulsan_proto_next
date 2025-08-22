@@ -27,6 +27,7 @@ interface SpotDetail {
   useTime?: string;
   restDate?: string;
   parking?: string;
+  contentId?: string;
 }
 
 const PopularCourseDetail: React.FC = () => {
@@ -94,7 +95,8 @@ const PopularCourseDetail: React.FC = () => {
       tel: spot.tel,
       useTime: spot.useTime,
       restDate: spot.restDate,
-      parking: spot.parking
+      parking: spot.parking,
+      contentId: spot.contentId
     }));
   }, [spotsInfo]);
 
@@ -314,7 +316,13 @@ const PopularCourseDetail: React.FC = () => {
               <div id="kakao-map-container" ref={undefined} />
               <KakaoMap
                 center={center}
-                markers={spots.map(s => ({ lat: s.lat, lng: s.lng, title: s.name }))}
+                markers={spots.map(s => ({ 
+                  lat: s.lat, 
+                  lng: s.lng, 
+                  title: s.name,
+                  address: s.address,
+                  contentId: s.contentId
+                }))}
                 path={path}
                 height={260}
                 showOrder

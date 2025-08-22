@@ -316,7 +316,13 @@ const SpotDetail: React.FC = () => {
                 <div className="h-64 rounded-lg overflow-hidden mb-3">
                   <KakaoMap
                     center={{ lat: spot.lat, lng: spot.lng }}
-                    markers={[{ lat: spot.lat, lng: spot.lng, title: spot.name }]}
+                    markers={[{ 
+                      lat: spot.lat, 
+                      lng: spot.lng, 
+                      title: spot.name,
+                      address: spot.address,
+                      contentId: spot.contentId
+                    }]}
                     height={256}
                     showOrder={false}
                     customMarker="/src/assets/marker/whale_marker1.png"
