@@ -19,12 +19,17 @@ const SpotDetail: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY);
-      setScrollPosition(window.scrollY);
+      const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+      setScrollY(scrollY);
+      setScrollPosition(scrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // 모바일과 데스크톱 모두 지원
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -116,7 +121,7 @@ const SpotDetail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* 뒤로가기 버튼 */}
       <div className="fixed top-4 left-4 z-50">
         <button
@@ -130,7 +135,7 @@ const SpotDetail: React.FC = () => {
       {/* 첫 번째 섹션 - 배경 이미지와 제목 */}
       <section 
         ref={(el) => (sectionRefs.current[0] = el)}
-        className="relative h-screen flex items-center justify-center overflow-hidden"
+        className="relative h-screen flex items-center justify-center"
         style={{
           backgroundImage: `url(${spot.image})`,
           backgroundSize: 'cover',
@@ -170,7 +175,7 @@ const SpotDetail: React.FC = () => {
       <section 
         ref={(el) => (sectionRefs.current[1] = el)}
         className={`relative min-h-screen bg-white transition-opacity duration-1000 ease-in-out ${
-          scrollPosition > window.innerHeight * 0.5 ? 'opacity-100' : 'opacity-0'
+          scrollPosition > (window.innerHeight || document.documentElement.clientHeight) * 0.5 ? 'opacity-100' : 'opacity-0'
         }`}
       >
         <div className="relative z-20 text-gray-800 px-4 w-full py-8">
