@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import WelcomeBanner from './components/WelcomeBanner';
 import StatsOverview from './components/StatsOverview';
 import RecommendedCourses from './components/RecommendedCourses';
+import FestivalList from './components/FestivalList';
 
 const Home: React.FC = () => {
   const { state } = useApp();
@@ -15,6 +16,7 @@ const Home: React.FC = () => {
         totalSpots={state.touristSpots.length}
       />
       <RecommendedCourses />
+      <FestivalList />
     </div>
   );
 };

@@ -9,6 +9,8 @@ import Rewards from "./pages/Rewards/Rewards";
 import Profile from "./pages/Profile/Profile";
 import PopularCourses from "./pages/PopularCourses/PopularCourses";
 import PopularCourseDetail from "./pages/PopularCourses/PopularCourseDetail";
+import Festivals from "./pages/Festivals/Festivals";
+import FestivalDetail from "./pages/Festivals/FestivalDetail";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 import AuthCallback from "./pages/Auth/AuthCallback";
@@ -30,6 +32,7 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/privacy-settings" element={<PrivacySettings />} />
+              <Route path="/festival/:id" element={<FestivalDetail />} />
 
               {/* 메인 앱 페이지들 (레이아웃 포함) */}
               <Route
@@ -47,6 +50,7 @@ function App() {
                         path="/popular/:id"
                         element={<PopularCourseDetail />}
                       />
+                      <Route path="/festivals" element={<Festivals />} />
                     </Routes>
                   </Layout>
                 }
