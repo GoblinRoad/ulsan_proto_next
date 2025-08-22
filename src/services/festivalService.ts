@@ -49,8 +49,6 @@ export async function getFestivals(): Promise<FestivalInfo[]> {
 
     const url = `https://apis.data.go.kr/B551011/KorService2/searchFestival2?${params}`;
     
-    console.log('축제 검색 API URL:', url); // 디버깅용 로그
-    
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -132,8 +130,6 @@ export async function getFestivalIntro(contentId: string): Promise<any> {
 
     const url = `https://apis.data.go.kr/B551011/KorService2/detailIntro2?${params}`;
     
-    console.log('축제 소개 API URL:', url); // 디버깅용 로그
-    
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -141,8 +137,6 @@ export async function getFestivalIntro(contentId: string): Promise<any> {
     }
 
     const data = await response.json();
-    
-    console.log('detailIntro2 API 응답:', data); // 디버깅용 로그
     
     if (!data || !data.response) {
       throw new Error('축제 소개 API 응답이 올바르지 않습니다.');
@@ -183,8 +177,6 @@ export async function getFestivalInfo(contentId: string): Promise<any[]> {
 
     const url = `https://apis.data.go.kr/B551011/KorService2/detailInfo2?${params}`;
     
-    console.log('축제 정보 API URL:', url); // 디버깅용 로그
-    
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -192,8 +184,6 @@ export async function getFestivalInfo(contentId: string): Promise<any[]> {
     }
 
     const data = await response.json();
-    
-    console.log('detailInfo2 API 응답:', data); // 디버깅용 로그
     
     if (!data || !data.response) {
       throw new Error('축제 정보 API 응답이 올바르지 않습니다.');
@@ -243,8 +233,6 @@ export async function getFestivalImages(contentId: string): Promise<FestivalImag
 
     const url = `https://apis.data.go.kr/B551011/KorService2/detailImage2?${params}`;
     
-    console.log('축제 이미지 API URL:', url); // 디버깅용 로그
-    
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -252,8 +240,6 @@ export async function getFestivalImages(contentId: string): Promise<FestivalImag
     }
 
     const data = await response.json();
-    
-    console.log('detailImage2 API 응답:', data); // 디버깅용 로그
     
     if (!data || !data.response) {
       throw new Error('축제 이미지 API 응답이 올바르지 않습니다.');

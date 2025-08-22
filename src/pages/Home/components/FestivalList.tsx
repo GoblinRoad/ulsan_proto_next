@@ -12,7 +12,7 @@ const FestivalList: React.FC = () => {
     const loadFestivals = async () => {
       try {
         const festivalData = await getFestivalsWithCache();
-        console.log('로드된 축제 데이터:', festivalData); // 디버깅용 로그
+    
         setFestivals(festivalData.slice(0, 3)); // 처음 3개만 표시
       } catch (error) {
         console.error('축제 정보 로드 실패:', error);

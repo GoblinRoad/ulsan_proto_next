@@ -65,7 +65,7 @@ const FestivalDetail: React.FC = () => {
     const loadFestivalDetail = async () => {
       if (!id) return;
 
-      console.log('축제 상세 페이지 - contentId:', id); // 디버깅용 로그
+
 
       try {
         const serviceKey = import.meta.env.VITE_TOURAPI_KEY;
