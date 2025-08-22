@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Navigation, AlertCircle } from 'lucide-react';
-import useKakaoMap from '../../../hooks/useKakaoMap';
-import { TouristSpot, CATEGORY_COLORS } from '../../../types/tourist';
-import { createCustomMarker, getCategoryIcon } from '../../../utils/markerUtils';
+import useKakaoMap from '../../hooks/useKakaoMap';
+import { TouristSpot, CATEGORY_COLORS } from '../../types/tourist';
+import { createCustomMarker, getCategoryIcon } from '../../utils/markerUtils';
 
 interface MapViewProps {
   spots: TouristSpot[];
