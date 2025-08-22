@@ -21,7 +21,6 @@ import PrivacySettings from "./components/Profile/PrivacySettings";
 import ScrollToTop from "./components/ScrollToTop";
 
 import "./App.css";
-import SpotDetail from "./pages/CheckIn/SpotDetail.tsx";
 
 function App() {
   return (
@@ -58,7 +57,7 @@ function App() {
                         element={<PopularCourseDetail />}
                       />
                       <Route path="/festivals" element={<Festivals />} />
-                      <Route path="/spot/:id" element={<SpotDetail />} />
+                      <Route path="/checkin/spot/:id" element={<SpotDetail />} />
                     </Routes>
                   </Layout>
                 }
