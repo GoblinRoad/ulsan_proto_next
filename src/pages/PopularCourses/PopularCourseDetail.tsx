@@ -49,20 +49,8 @@ const PopularCourseDetail: React.FC = () => {
   const [spotsInfo, setSpotsInfo] = useState<CourseSpotInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [accuratePath, setAccuratePath] = useState<{ lat: number; lng: number }[]>([]);
-  const [selectedSpot, setSelectedSpot] = useState<SpotDetail | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 모달을 여는 함수
-  const openSpotModal = (spot: SpotDetail) => {
-    setSelectedSpot(spot);
-    setIsModalOpen(true);
-  };
 
-  // 모달을 닫는 함수
-  const closeSpotModal = () => {
-    setIsModalOpen(false);
-    setSelectedSpot(null);
-  };
 
   // 카카오맵으로 길찾기 이동하는 함수
   const openKakaoMapNavigation = (lat: number, lng: number, name: string) => {
@@ -268,7 +256,7 @@ const PopularCourseDetail: React.FC = () => {
               <button
                 key={idx}
                 className="w-full text-left group"
-                onClick={() => openSpotModal(spot)}
+                onClick={() => navigate(`/spot/${course.name}/${idx}`)}
               >
                 <div className="relative w-full h-48 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                   <img 
@@ -336,116 +324,7 @@ const PopularCourseDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* 상세 정보 모달 */}
-      {isModalOpen && selectedSpot && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[85vh] overflow-hidden flex flex-col">
-            {/* 모달 헤더 */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 rounded-t-xl">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-800">{selectedSpot.name}</h3>
-                <button
-                  onClick={closeSpotModal}
-                  className="p-2 rounded-lg hover:bg-gray-100"
-                >
-                  <X className="w-5 h-5 text-gray-600" />
-                </button>
-              </div>
-            </div>
 
-            {/* 모달 내용 */}
-            <div className="p-4 space-y-6 overflow-y-auto flex-1">
-              {/* 관광지 이미지 */}
-              <div className="w-full h-48 rounded-lg overflow-hidden">
-                <img 
-                  src={selectedSpot.image} 
-                  alt={selectedSpot.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* 여행지 소개 */}
-              <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">여행지 소개</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {parseHtmlText(selectedSpot.description)}
-                  </p>
-                </div>
-              </div>
-
-              {/* 기본 정보 */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-800">기본 정보</h4>
-                
-                {selectedSpot.address && (
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-800">주소</p>
-                      <p className="text-gray-600 text-sm">{parseHtmlText(selectedSpot.address)}</p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedSpot.tel && (
-                  <div className="flex items-start space-x-3">
-                    <Phone className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-800">전화번호</p>
-                      <p className="text-gray-600 text-sm">{parseHtmlText(selectedSpot.tel)}</p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedSpot.useTime && (
-                  <div className="flex items-start space-x-3">
-                    <Clock className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-800">이용시간</p>
-                      <p className="text-gray-600 text-sm whitespace-pre-line">{parseHtmlText(selectedSpot.useTime)}</p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedSpot.restDate && (
-                  <div className="flex items-start space-x-3">
-                    <Ban className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-800">휴무일</p>
-                      <p className="text-gray-600 text-sm whitespace-pre-line">{parseHtmlText(selectedSpot.restDate)}</p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedSpot.parking && (
-                  <div className="flex items-start space-x-3">
-                    <Car className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-800">주차</p>
-                      <p className="text-gray-600 text-sm whitespace-pre-line">{parseHtmlText(selectedSpot.parking)}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 카카오맵 길찾기 버튼 */}
-              <div className="pt-4 border-t border-gray-200 bg-white p-4 rounded-b-xl">
-                <button
-                  onClick={() => {
-                    openKakaoMapNavigation(selectedSpot.lat, selectedSpot.lng, selectedSpot.name);
-                    closeSpotModal();
-                  }}
-                  className="flex items-center justify-center w-full bg-yellow-300 hover:bg-yellow-400 text-gray-800 font-medium py-3 px-4 rounded-lg transition-colors"
-                >
-                  <img src={kakaoLogo} alt="카카오맵" className="w-5 h-5 mr-2" />
-                  카카오맵으로 길찾기
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

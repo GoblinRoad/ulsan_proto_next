@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FestivalImage } from '../../services/festivalService';
+import { SpotImage } from '../../services/courseSpotService';
 import ImageModal from '../Modals/ImageModal';
 
 interface ImageCarouselProps {
-  images: FestivalImage[];
+  images: FestivalImage[] | SpotImage[];
   height?: string;
 }
 

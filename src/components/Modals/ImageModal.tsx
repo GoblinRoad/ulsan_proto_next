@@ -1,9 +1,10 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { FestivalImage } from '../../services/festivalService';
+import { SpotImage } from '../../services/courseSpotService';
 
 interface ImageModalProps {
-  image: FestivalImage | null;
+  image: FestivalImage | SpotImage | null;
   isOpen: boolean;
   onClose: () => void;
 }

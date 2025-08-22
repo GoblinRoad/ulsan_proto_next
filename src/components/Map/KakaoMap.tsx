@@ -25,6 +25,7 @@ interface KakaoMapProps {
   path?: { lat: number; lng: number }[]; // 경로 폴리라인
   height?: number;
   showOrder?: boolean; // 마커에 1..N 순번 표시
+  customMarker?: string; // 커스텀 마커 이미지 경로
 }
 
 function loadKakaoScript(appKey?: string): Promise<void> {
@@ -55,7 +56,7 @@ function loadKakaoScript(appKey?: string): Promise<void> {
   });
 }
 
-const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false }) => {
+const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false, customMarker }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -76,13 +77,17 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
         map = new kakao.maps.Map(containerRef.current, options);
 
         kakaoMarkers = markers.map((m, idx) => {
-          // 순서에 맞는 고래 마커 이미지 선택
-          const markerImages = [
-            whaleMarker1, whaleMarker2, whaleMarker3, whaleMarker4, 
-            whaleMarker5, whaleMarker6, whaleMarker7
-          ];
-          
-          const selectedMarkerImage = markerImages[idx] || whaleMarker1; // 기본값은 whaleMarker1
+          // 커스텀 마커가 있으면 사용, 없으면 순서에 맞는 고래 마커 이미지 선택
+          let selectedMarkerImage;
+          if (customMarker) {
+            selectedMarkerImage = customMarker;
+          } else {
+            const markerImages = [
+              whaleMarker1, whaleMarker2, whaleMarker3, whaleMarker4, 
+              whaleMarker5, whaleMarker6, whaleMarker7
+            ];
+            selectedMarkerImage = markerImages[idx] || whaleMarker1; // 기본값은 whaleMarker1
+          }
           
           // 고래 마커 이미지 생성
           const whaleMarker = new kakao.maps.MarkerImage(
@@ -135,7 +140,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
       overlays.forEach(o => o.setMap(null));
       map = null;
     };
-  }, [center.lat, center.lng, markers, path, showOrder]);
+  }, [center.lat, center.lng, markers, path, showOrder, customMarker]);
 
         const appKey = (import.meta.env.KAKAOMAP_API_KEY || import.meta.env.VITE_KAKAOMAP_API_KEY) as string | undefined;
   const showFallback = !appKey;

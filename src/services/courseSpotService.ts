@@ -1,4 +1,13 @@
 import { TourApiDetailResponse, TourApiIntroResponse, TourApiDetailItem, TourApiIntroItem } from '../types/tourApi';
+
+export interface SpotImage {
+  contentid: string;
+  originimgurl: string;
+  imgname: string;
+  smallimageurl: string;
+  cpyrhtDivCd: string;
+  serialnum: string;
+}
 import 복순도가이미지 from '../assets/spot/울산_복순도가.png';
 import 트레비어이미지 from '../assets/spot/트레비어.jpg';
 import fe01이미지 from '../assets/spot/fe01.png';
@@ -319,4 +328,45 @@ export async function getFirstSpotInfo(courseName: string): Promise<CourseSpotIn
   }
   
   return spotInfo;
+}
+
+// 관광지 이미지 가져오기
+export async function getSpotImages(contentId: string): Promise<SpotImage[]> {
+  const serviceKey = import.meta.env.VITE_TOURAPI_KEY;
+  
+  if (!serviceKey) {
+    console.error('Tour API 키가 설정되지 않았습니다.');
+    return [];
+  }
+
+  try {
+    const params = new URLSearchParams({
+      serviceKey: decodeURIComponent(serviceKey),
+      pageNo: '1',
+      numOfRows: '20',
+      MobileOS: 'WEB',
+      MobileApp: 'Ulsan',
+      _type: 'json',
+      contentId
+    });
+
+    const url = `https://apis.data.go.kr/B551011/KorService2/detailImage2?${params}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`이미지 API 오류: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.response.header.resultCode !== '0000') {
+      throw new Error(`이미지 API 오류: ${data.response.header.resultMsg}`);
+    }
+
+    const items = data.response.body.items?.item;
+    return items || [];
+  } catch (error) {
+    console.error('관광지 이미지 로드 실패:', error);
+    return [];
+  }
 }
