@@ -3,7 +3,7 @@ import { Coins, LogIn } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApp } from "../../contexts/AppContext";
-import whaleToUlsanLogo from '../../assets/logo/whaleToUlsan_logo.png';
+import whaleToUlsanLogo from '../../assets/logo/whalecome_ulsan.png';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
@@ -16,12 +16,12 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-3">
             <img 
               src={whaleToUlsanLogo} 
-              alt="웨일투울산" 
+              alt="웨일컴울산" 
               className="w-16 h-16 object-contain -my-2 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => navigate('/')}
             />
             <div>
-              <h1 className="text-lg font-bold text-gray-800">웨일투울산</h1>
+              <h1 className="text-lg font-bold text-gray-800">웨일컴울산</h1>
               <p className="text-xs text-gray-500">추억을 남기고, 가치를 더하다</p>
             </div>
           </div>
