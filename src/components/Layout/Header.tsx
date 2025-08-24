@@ -13,12 +13,14 @@ const Header: React.FC = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-sm">
       <div className="max-w-md mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div 
+            className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/')}
+          >
             <img 
               src={whaleToUlsanLogo} 
               alt="웨일컴울산" 
-              className="w-16 h-16 object-contain -my-2 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate('/')}
+              className="w-16 h-16 object-contain -my-2"
             />
             <div>
               <h1 className="text-lg font-bold text-gray-800">웨일컴울산</h1>
