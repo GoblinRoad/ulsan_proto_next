@@ -31,7 +31,10 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               // 로그인된 상태 - 코인 표시
-              <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-400 px-3 py-1.5 rounded-full">
+              <div 
+                className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-400 px-3 py-1.5 rounded-full cursor-pointer hover:from-yellow-500 hover:to-orange-500 transition-all duration-200"
+                onClick={() => navigate('/rewards')}
+              >
                 <Coins className="w-4 h-4 text-white" />
                 <span className="text-white font-bold text-sm">
                   {state.user.totalCoins}
