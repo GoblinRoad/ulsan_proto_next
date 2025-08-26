@@ -82,6 +82,10 @@ const MapView: React.FC<MapViewProps> = ({ spots }) => {
       const zoomControl = new window.kakao.maps.ZoomControl();
       map.current.addControl(zoomControl, window.kakao.maps.ControlPosition.RIGHT);
 
+
+
+
+
     } catch (err) {
       console.error('카카오맵 초기화 오류:', err);
     }
