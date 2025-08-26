@@ -56,14 +56,14 @@ const StampTourBanner: React.FC = () => {
         <HelpCircle className="w-4 h-4 text-white" />
       </button>
       
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-4 relative z-10">
         <div>
           <h2 className="text-xl font-bold">울산 스탬프 투어</h2>
           <p className="text-sm text-white/80">방문하고 스탬프를 모으세요!</p>
         </div>
       </div>
       
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 relative z-10">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <Target className="w-4 h-4 text-white/80" />
@@ -76,7 +76,7 @@ const StampTourBanner: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex space-x-3">
+      <div className="flex space-x-3 relative z-10">
         <button
           onClick={handleStartTour}
           className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-3 rounded-xl font-medium transition-colors flex items-center justify-center space-x-2"
@@ -96,21 +96,21 @@ const StampTourBanner: React.FC = () => {
       
       {/* 도움말 모달 */}
       {showHelpModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-sm sm:max-w-md lg:max-w-lg mx-4 max-h-[90vh] sm:max-h-[80vh] overflow-y-auto">
             <div className="mb-4">
               <h3 className="text-xl font-bold text-gray-800">스탬프 투어 가이드</h3>
             </div>
             
-            <div className="space-y-4 text-base text-gray-600">
+            <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-gray-600">
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2 text-lg">🎯 스탬프 투어란?</h4>
-                <p className="text-base">울산의 관광지를 방문하여 방문인증을 하고 코인을 획득할 수 있는 여행 프로그램입니다.</p>
+                <h4 className="font-semibold text-gray-800 mb-2 text-base sm:text-lg">🎯 스탬프 투어란?</h4>
+                <p className="text-sm sm:text-base">울산의 관광지를 방문하여 방문인증을 하고 코인을 획득할 수 있는 여행 프로그램입니다.</p>
               </div>
               
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2 text-lg">📍 사용 방법</h4>
-                <ol className="list-decimal list-inside space-y-1 text-base">
+                <h4 className="font-semibold text-gray-800 mb-2 text-base sm:text-lg">📍 사용 방법</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm sm:text-base">
                   <li>홈에서 원하는 코스를 선택하세요</li>
                   <li>관광지에 방문하여 체크인하세요</li>
                   <li>방문인증 후 코인을 획득할 수 있습니다</li>
@@ -118,8 +118,8 @@ const StampTourBanner: React.FC = () => {
               </div>
               
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2 text-lg">🪙 보상 시스템</h4>
-                <ul className="list-disc list-inside space-y-1 text-base">
+                <h4 className="font-semibold text-gray-800 mb-2 text-base sm:text-lg">🪙 보상 시스템</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm sm:text-base">
                   <li>각 관광지 방문 시 코인 획득</li>
                   <li>미션 완료 시 추가 보상</li>
                   <li>획득한 코인으로 상품권 교환 가능</li>
@@ -127,14 +127,14 @@ const StampTourBanner: React.FC = () => {
               </div>
               
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2 text-lg">💡 팁</h4>
-                <p className="text-lg">여러 미션을 완료할수록 더 많은 코인을 모을 수 있어요!</p>
+                <h4 className="font-semibold text-gray-800 mb-2 text-base sm:text-lg">💡 팁</h4>
+                <p className="text-base sm:text-lg">여러 미션을 완료할수록 더 많은 코인을 모을 수 있어요!</p>
               </div>
             </div>
             
             <button
               onClick={handleCloseHelp}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl font-medium transition-colors mt-6"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 sm:py-3 rounded-xl font-medium transition-colors mt-4 sm:mt-6 text-sm sm:text-base"
             >
               확인
             </button>
