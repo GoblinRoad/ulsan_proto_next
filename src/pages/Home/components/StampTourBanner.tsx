@@ -51,9 +51,9 @@ const StampTourBanner: React.FC = () => {
       {/* 도움말 아이콘 */}
       <button
         onClick={handleShowHelp}
-        className="absolute top-4 right-4 w-6 h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors z-10"
+        className="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors z-20 cursor-pointer"
       >
-        <HelpCircle className="w-4 h-4 text-white" />
+        <HelpCircle className="w-5 h-5 text-white" />
       </button>
       
       <div className="flex items-start justify-between mb-4 relative z-10">
