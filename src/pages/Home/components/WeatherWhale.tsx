@@ -172,12 +172,6 @@ const WeatherWhale: React.FC = () => {
               <span className="text-blue-200">•</span>
               <Wind className="w-4 h-4" />
               <span className="text-sm">{weatherData.windSpeed}m/s</span>
-              {weatherData.rainProbability > 0 && (
-                  <>
-                    <span className="text-blue-200">•</span>
-                    <span className="text-sm">강수 {weatherData.rainProbability}%</span>
-                  </>
-              )}
             </div>
           </div>
         </div>

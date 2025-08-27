@@ -1,13 +1,22 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
+import { RefreshCw, AlertCircle, Loader2, MapPin, Navigation } from 'lucide-react';
 import MapView from '@/components/Map/MapView';
 import FilterTabs from '@/components/Map/FilterTabs';
 import DistrictFilterTabs from '@/components/Map/DistrictFilterTabs';
 import SpotList from '@/components/Map/SpotList';
+import NearbySpotList from '@/components/Map/NearbySpotList';
 import {TEST_TOURIST_SPOTS} from "@/data/testData"
 import SearchInput from '@/components/Map/SearchInput';
 import useTourApi from '@/hooks/useTourApi';
-import { CategoryFilter, DistrictFilter, CategoryCounts, SpotCounts } from '@/types/tourist';
+import useLocationAuth from '@/hooks/useLocationAuth';
+import { CategoryFilter, DistrictFilter, CategoryCounts, SpotCounts, TouristSpot } from '@/types/tourist';
+
+const ULSAN_CENTER = {
+  lat: 35.5384,
+  lng: 129.3114
+};
+
+const SEARCH_RADIUS = 5000;
 
 const Map: React.FC = () => {
   const { spots, loading, error, refetch } = useTourApi();
@@ -29,6 +38,19 @@ const Map: React.FC = () => {
     return sessionStorage.getItem('map_searchTerm') || '';
   });
 
+  const {
+    currentLocation,
+    isLocationEnabled,
+    locationError,
+    getCurrentLocation,
+    isLoading: locationLoading
+  } = useLocationAuth({
+    targetLocation: ULSAN_CENTER,
+    allowedRadius: SEARCH_RADIUS
+  });
+
+  const targetLocation = currentLocation || ULSAN_CENTER;
+
   useEffect(() => {
     sessionStorage.setItem('map_viewMode', viewMode);
   }, [viewMode]);
@@ -44,6 +66,20 @@ const Map: React.FC = () => {
   useEffect(() => {
     sessionStorage.setItem('map_searchTerm', searchTerm);
   }, [searchTerm]);
+
+  const calculateDistance = useCallback((coord1: {lat: number, lng: number}, coord2: {lat: number, lng: number}): number => {
+    const R = 6371e3;
+    const φ1 = (coord1.lat * Math.PI) / 180;
+    const φ2 = (coord2.lat * Math.PI) / 180;
+    const Δφ = ((coord2.lat - coord1.lat) * Math.PI) / 180;
+    const Δλ = ((coord2.lng - coord1.lng) * Math.PI) / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }, []);
 
   const searchFilter = useCallback((spot: any, term: string) => {
     if (!term) return true;
@@ -103,6 +139,43 @@ const Map: React.FC = () => {
 
     return filtered;
   }, [baseFilteredSpots, searchTerm, districtFilter, categoryFilter, searchFilter]);
+
+  const [selectedSpot, setSelectedSpot] = useState<(TouristSpot & { distance: number }) | null>(null);
+
+  const nearbySpots = useMemo(() => {
+    if (viewMode !== 'map' || !targetLocation) return [];
+
+    const spotsWithDistance = baseFilteredSpots
+        .map(spot => ({
+          ...spot,
+          distance: calculateDistance(targetLocation, spot.coordinates)
+        }))
+        .filter(spot => spot.distance <= SEARCH_RADIUS)
+        .sort((a, b) => a.distance - b.distance);
+
+    return spotsWithDistance;
+  }, [baseFilteredSpots, targetLocation, calculateDistance, viewMode]);
+
+  useEffect(() => {
+    if (viewMode === 'list') {
+      setSelectedSpot(null);
+    }
+  }, [viewMode]);
+
+  const handleMarkerClick = useCallback((spot: TouristSpot & { distance: number }) => {
+    if (selectedSpot?.id === spot.id) {
+      setSelectedSpot(null);
+    } else {
+      setSelectedSpot(spot);
+    }
+  }, [selectedSpot]);
+
+  const formatDistance = (distance: number): string => {
+    if (distance < 1000) {
+      return `${Math.round(distance)}m`;
+    }
+    return `${(distance / 1000).toFixed(1)}km`;
+  };
 
   const spotCounts: SpotCounts = useMemo(() => {
     let baseFiltered = baseFilteredSpots;
@@ -195,6 +268,7 @@ const Map: React.FC = () => {
 
   return (
       <div className="max-w-md mx-auto">
+        {/* 헤더 */}
         <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
           <div className="px-4 py-3">
             <div className="flex items-center justify-between mb-3">
@@ -228,49 +302,161 @@ const Map: React.FC = () => {
               </div>
             </div>
 
-            {/* 검색 입력 */}
-            <div className="mb-3">
-              <SearchInput
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  placeholder="관광지 이름이나 주소로 검색..."
-              />
-            </div>
+            {/* 지도 모드일 때 위치 정보 표시 */}
+            {viewMode === 'map' && (
+                <div className="mb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm text-gray-600">
+                      {isLocationEnabled ? '현재 위치 기준' : '울산 중심 기준'} • 반경 5km
+                    </span>
+                      {locationLoading && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                    </div>
 
-            {/* 구별 필터 */}
-            <div className="mb-2">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-sm font-medium text-gray-700">구별</span>
-                <span className="text-xs text-gray-500">({filteredSpots.length}개)</span>
-                {searchTerm && (
-                    <span className="text-xs text-blue-500">
-                    "{searchTerm}" 검색 결과
+                    {!isLocationEnabled && (
+                        <button
+                            onClick={getCurrentLocation}
+                            className="flex items-center space-x-1 text-blue-500 text-sm hover:text-blue-600"
+                        >
+                          <Navigation className="w-3 h-3" />
+                          <span>위치 허용</span>
+                        </button>
+                    )}
+                  </div>
+
+                  {locationError && (
+                      <p className="text-xs text-red-500 mt-1">{locationError}</p>
+                  )}
+
+                  <div className="flex items-center space-x-2 mt-2">
+                  <span className="text-xs text-gray-500">
+                    주변 관광지 {nearbySpots.length}개 발견
                   </span>
-                )}
-              </div>
-              <DistrictFilterTabs
-                  filter={districtFilter}
-                  setFilter={setDistrictFilter}
-                  spotCounts={spotCounts}
-              />
-            </div>
+                  </div>
+                </div>
+            )}
 
-            {/* 카테고리 필터 */}
-            <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-sm font-medium text-gray-700">카테고리</span>
-              </div>
-              <FilterTabs
-                  filter={categoryFilter}
-                  setFilter={setCategoryFilter}
-                  categoryCounts={categoryCounts}
-              />
-            </div>
+            {/* 목록 모드일 때만 필터 표시 */}
+            {viewMode === 'list' && (
+                <>
+                  {/* 검색 입력 */}
+                  <div className="mb-3">
+                    <SearchInput
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        placeholder="관광지 이름이나 주소로 검색..."
+                    />
+                  </div>
+
+                  {/* 구별 필터 */}
+                  <div className="mb-2">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-sm font-medium text-gray-700">구별</span>
+                      <span className="text-xs text-gray-500">({filteredSpots.length}개)</span>
+                      {searchTerm && (
+                          <span className="text-xs text-blue-500">
+                        "{searchTerm}" 검색 결과
+                      </span>
+                      )}
+                    </div>
+                    <DistrictFilterTabs
+                        filter={districtFilter}
+                        setFilter={setDistrictFilter}
+                        spotCounts={spotCounts}
+                    />
+                  </div>
+
+                  {/* 카테고리 필터 */}
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-sm font-medium text-gray-700">카테고리</span>
+                    </div>
+                    <FilterTabs
+                        filter={categoryFilter}
+                        setFilter={setCategoryFilter}
+                        categoryCounts={categoryCounts}
+                    />
+                  </div>
+                </>
+            )}
           </div>
         </div>
 
+        {/* 콘텐츠 */}
         {viewMode === 'map' ? (
-            <MapView spots={filteredSpots} />
+            <div>
+              {/* 지도 */}
+              <MapView
+                  spots={nearbySpots}
+                  centerLocation={targetLocation}
+                  showCurrentLocation={isLocationEnabled}
+                  onMarkerClick={handleMarkerClick}
+                  selectedSpot={selectedSpot}
+              />
+
+              {/* 하단 선택된 관광지 또는 주변 목록 */}
+              <div className="bg-white border-t border-gray-200">
+                <div className="px-4 py-3">
+                  {selectedSpot ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-md font-semibold text-gray-800">
+                            선택된 관광지
+                          </h3>
+                          <button
+                              onClick={() => setSelectedSpot(null)}
+                              className="text-gray-400 hover:text-gray-600 text-sm"
+                          >
+                            ✕ 닫기
+                          </button>
+                        </div>
+                        <NearbySpotList
+                            spots={[selectedSpot]}
+                            onCheckInComplete={handleCheckInComplete}
+                            formatDistance={formatDistance}
+                            showDetailView={true}
+                        />
+                      </div>
+                  ) : (
+                      <div>
+                        <div className="flex items-center space-x-2 mb-3">
+                          <h3 className="text-md font-semibold text-gray-800">
+                            주변 관광지 목록
+                          </h3>
+                          <span className="text-sm text-gray-500">
+                            ({nearbySpots.length}개)
+                          </span>
+                        </div>
+                        {nearbySpots.length === 0 ? (
+                            <div className="text-center py-8">
+                              <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                              <p className="text-gray-500 text-sm">
+                                반경 5km 내에 관광지가 없습니다
+                              </p>
+                              {!isLocationEnabled && (
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    위치를 허용하면 현재 위치 기준으로 검색됩니다
+                                  </p>
+                              )}
+                            </div>
+                        ) : (
+                            <div>
+                              <p className="text-xs text-gray-500 mb-3">
+                                마커를 클릭하면 상세 정보를 볼 수 있습니다
+                              </p>
+                              <NearbySpotList
+                                  spots={nearbySpots}
+                                  onCheckInComplete={handleCheckInComplete}
+                                  formatDistance={formatDistance}
+                              />
+                            </div>
+                        )}
+                      </div>
+                  )}
+                </div>
+              </div>
+            </div>
         ) : (
             <div className="min-h-screen bg-gray-50">
               {sessionStorage.getItem("testMode") === "true" ? (

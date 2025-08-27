@@ -28,6 +28,7 @@ interface KakaoMapProps {
   height?: number;
   showOrder?: boolean; // 마커에 1..N 순번 표시
   customMarker?: string; // 커스텀 마커 이미지 경로
+  draggable?: boolean;
 }
 
 function loadKakaoScript(appKey?: string): Promise<void> {
@@ -58,7 +59,7 @@ function loadKakaoScript(appKey?: string): Promise<void> {
   });
 }
 
-const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false, customMarker }) => {
+const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220, showOrder = false, customMarker, draggable = true }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // 인포윈도우 내용 생성 함수
@@ -118,6 +119,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({ center, markers, path, height = 220
           zoomable: true // 줌 기능 활성화 (핀치 줌 포함)
         };
         map = new kakao.maps.Map(containerRef.current, options);
+        map.setDraggable(draggable);
+        map.setZoomable(draggable)
 
 
 

@@ -19,6 +19,7 @@ import ChangePassword from "./pages/Auth/ChangePassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import PrivacySettings from "./components/Profile/PrivacySettings";
 import ScrollToTop from "./components/ScrollToTop";
+import MapSpotDetail from "./pages/CheckIn/MapSpotDetail";
 
 import "./App.css";
 
@@ -57,7 +58,7 @@ function App() {
                         element={<PopularCourseDetail />}
                       />
                       <Route path="/festivals" element={<Festivals />} />
-                      <Route path="/checkin/spot/:id" element={<SpotDetail />} />
+                      <Route path="/checkin/spot/:id" element={<MapSpotDetail />} />
                     </Routes>
                   </Layout>
                 }
