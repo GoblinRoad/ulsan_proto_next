@@ -2,15 +2,14 @@ import { CATEGORY_COLORS } from '../types/tourist';
 
 // 카테고리별 고래 마커 이미지 매핑 (실제 사용하는 6개 카테고리)
 const WHALE_MARKER_MAP: { [key: string]: string } = {
-    '문화관광': '/src/assets/marker/whale_blue.png',
-    '자연관광': '/src/assets/marker/whale_green.png',
-    '역사관광': '/src/assets/marker/whale_purple.png',
-    '체험관광': '/src/assets/marker/whale_orange.png',
-    '레저스포츠': '/src/assets/marker/whale_red.png',
-    '시장': '/src/assets/marker/whale_yellow.png',
-    'default': '/src/assets/marker/whale_marker1.png'
+    '문화관광': '/marker/whale_blue.png',
+    '자연관광': '/marker/whale_green.png',
+    '역사관광': '/marker/whale_purple.png',
+    '체험관광': '/marker/whale_orange.png',
+    '레저스포츠': '/marker/whale_red.png',
+    '시장': '/marker/whale_yellow.png',
+    'default': '/marker/whale_marker1.png'
 };
-
 const VISITED_WHALE_MARKER = '/src/assets/marker/whale_visited.png';
 
 export const createCustomMarker = (category: string, visited: boolean = false, selected: boolean = false): string => {
