@@ -9,6 +9,16 @@ interface UseTourApiResult {
     refetch: () => void;
 }
 
+interface CachedData {
+    data: TouristSpot[];
+    timestamp: number;
+    version: string;
+}
+
+const CACHE_KEY = 'tour_spots_cache';
+const CACHE_DURATION = 24 * 60 * 60 * 1000;
+const CACHE_VERSION = '1.0.0';
+
 const useTourApi = (): UseTourApiResult => {
     const [spots, setSpots] = useState<TouristSpot[]>([]);
     const [loading, setLoading] = useState(true);
@@ -66,13 +76,78 @@ const useTourApi = (): UseTourApiResult => {
             });
     };
 
-    const fetchTourData = async () => {
+    const loadFromCache = (): TouristSpot[] | null => {
+        try {
+            const cachedDataStr = localStorage.getItem(CACHE_KEY);
+            if (!cachedDataStr) return null;
+
+            const cachedData: CachedData = JSON.parse(cachedDataStr);
+
+            if (cachedData.version !== CACHE_VERSION) {
+                localStorage.removeItem(CACHE_KEY);
+                return null;
+            }
+
+            const now = Date.now();
+            const isExpired = (now - cachedData.timestamp) > CACHE_DURATION;
+
+            if (isExpired) {
+                return null;
+            }
+
+            return cachedData.data;
+
+        } catch (error) {
+            console.error('캐시 로드 중 오류:', error);
+            localStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    };
+
+    const saveToCache = (data: TouristSpot[]): void => {
+        try {
+            const cacheData: CachedData = {
+                data,
+                timestamp: Date.now(),
+                version: CACHE_VERSION
+            };
+
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+
+        } catch (error) {
+            console.error('캐시 저장 중 오류:', error);
+
+            if (error instanceof Error && error.name === 'QuotaExceededError') {
+                localStorage.removeItem(CACHE_KEY);
+
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify({
+                        data,
+                        timestamp: Date.now(),
+                        version: CACHE_VERSION
+                    }));
+                } catch (retryError) {
+                    console.error('캐시 재저장 실패:', retryError);
+                }
+            }
+        }
+    };
+
+    const fetchTourData = async (forceRefresh = false) => {
         setLoading(true);
         setError(null);
 
         try {
-            const serviceKey = import.meta.env.VITE_TOURAPI_KEY;
+            if (!forceRefresh) {
+                const cachedData = loadFromCache();
+                if (cachedData) {
+                    setSpots(cachedData);
+                    setLoading(false);
+                    return;
+                }
+            }
 
+            const serviceKey = import.meta.env.VITE_TOURAPI_KEY;
             if (!serviceKey) {
                 throw new Error('관광공사 API 키가 설정되지 않았습니다.');
             }
@@ -117,10 +192,27 @@ const useTourApi = (): UseTourApiResult => {
             const transformedSpots = transformTourApiData(allItems);
             setSpots(transformedSpots);
 
+            saveToCache(transformedSpots);
+
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.';
             setError(errorMessage);
             console.error('Tour API Error:', err);
+
+            if (!forceRefresh) {
+                try {
+                    const cachedDataStr = localStorage.getItem(CACHE_KEY);
+                    if (cachedDataStr) {
+                        const cachedData: CachedData = JSON.parse(cachedDataStr);
+                        if (cachedData.data && cachedData.data.length > 0) {
+                            setSpots(cachedData.data);
+                            setError(`${errorMessage} (캐시된 데이터를 사용 중)`);
+                        }
+                    }
+                } catch (cacheError) {
+                    console.error('캐시 복구 시도 실패:', cacheError);
+                }
+            }
 
         } finally {
             setLoading(false);
@@ -128,7 +220,7 @@ const useTourApi = (): UseTourApiResult => {
     };
 
     const refetch = () => {
-        fetchTourData();
+        fetchTourData(true);
     };
 
     useEffect(() => {

@@ -16,6 +16,11 @@ export interface TouristSpot {
     tel?: string;
 }
 
+// 거리 정보가 포함된 관광지 타입
+export interface TouristSpotWithDistance extends TouristSpot {
+    distance: number; // 미터 단위
+}
+
 export type DistrictFilter = 'all' | 'jung' | 'nam' | 'dong' | 'buk' | 'ulju';
 export type CategoryFilter = 'all' | '문화관광' | '자연관광' | '역사관광' | '체험관광' | '레저스포츠' | '시장';
 
@@ -39,16 +44,28 @@ export interface CategoryCounts {
     음식: number;
 }
 
+// 위치 정보 타입
+export interface Coordinates {
+    lat: number;
+    lng: number;
+}
+
 // 카테고리별 색상 정보
 export const CATEGORY_COLORS = {
-    숙박: '#F59E0B', // amber-500
-    추천코스: '#8B5CF6', // violet-500
-    체험관광: '#EC4899', // pink-500
-    음식: '#F97316', // orange-500
+    체험관광: '#F97316', // orange-500
     역사관광: '#8B5CF6', // violet-500
     레저스포츠: '#EF4444', // red-500
     자연관광: '#10B981', // emerald-500
-    시장: '#10B981', // emerald-500
-    문화관광: '#3B82F6',
-    쇼핑: '#000000'// blue-500
+    시장: '#F59E0B', // amber-500
+    문화관광: '#3B82F6', // blue-500
+} as const;
+
+// 지도 설정 상수
+export const MAP_CONFIG = {
+    ULSAN_CENTER: { lat: 35.5384, lng: 129.3114 },
+    DEFAULT_SEARCH_RADIUS: 5000, // 5km
+    SEARCH_RADIUS_OPTIONS: [1000, 3000, 5000, 10000, 20000], // 미터 단위
+    DEFAULT_ZOOM_LEVEL: 6,
+    MIN_ZOOM_LEVEL: 3,
+    MAX_LIST_ITEMS: 10 // 목록에 표시할 최대 개수
 } as const;

@@ -1,34 +1,53 @@
 import { CATEGORY_COLORS } from '../types/tourist';
 
-export const createCustomMarker = (category: string, visited: boolean = false): string => {
-    const color = visited ? '#9CA3AF' : CATEGORY_COLORS[category as keyof typeof CATEGORY_COLORS] || '#6B7280';
+// 카테고리별 고래 마커 이미지 매핑 (실제 사용하는 6개 카테고리)
+const WHALE_MARKER_MAP: { [key: string]: string } = {
+    '문화관광': '/src/assets/marker/whale_blue.png',
+    '자연관광': '/src/assets/marker/whale_green.png',
+    '역사관광': '/src/assets/marker/whale_purple.png',
+    '체험관광': '/src/assets/marker/whale_orange.png',
+    '레저스포츠': '/src/assets/marker/whale_red.png',
+    '시장': '/src/assets/marker/whale_yellow.png',
+    'default': '/src/assets/marker/whale_marker1.png'
+};
 
-    // SVG 마커 생성
-    const svg = `
-    <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.3)"/>
-        </filter>
-      </defs>
-      <!-- 마커 배경 -->
-      <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 26 16 26s16-10 16-26C32 7.163 24.837 0 16 0z" 
-            fill="${color}" 
-            filter="url(#shadow)"/>
-      <!-- 내부 원 -->
-      <circle cx="16" cy="16" r="8" fill="white" opacity="0.9"/>
-      <!-- 중앙 점 -->
-      <circle cx="16" cy="16" r="4" fill="${color}"/>
-      ${visited ? `
-        <!-- 체크마크 (방문완료) -->
-        <path d="M12 16l2 2 4-4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      ` : ''}
-    </svg>
-  `;
+const VISITED_WHALE_MARKER = '/src/assets/marker/whale_visited.png';
 
-    // SVG를 base64로 인코딩
-    const encodedSvg = btoa(unescape(encodeURIComponent(svg)));
-    return `data:image/svg+xml;base64,${encodedSvg}`;
+export const createCustomMarker = (category: string, visited: boolean = false, selected: boolean = false): string => {
+    if (visited) {
+        return VISITED_WHALE_MARKER;
+    }
+
+    return WHALE_MARKER_MAP[category] || WHALE_MARKER_MAP['default'];
+};
+
+export const getMarkerSize = (selected: boolean = false): { width: number, height: number } => {
+    return selected ? { width: 40, height: 40 } : { width: 32, height: 32 };
+};
+
+export const getMarkerOptions = (category: string, visited: boolean = false, selected: boolean = false) => {
+    const imagePath = createCustomMarker(category, visited, selected);
+    const size = getMarkerSize(selected);
+
+    return {
+        url: imagePath,
+        size: size,
+        anchor: { x: size.width / 2, y: size.height },
+        zIndex: selected ? 1000 : 100
+    };
+};
+
+export const getWhaleMarkerPath = (category: string, visited: boolean = false): string => {
+    if (visited) {
+        return VISITED_WHALE_MARKER;
+    }
+    return WHALE_MARKER_MAP[category] || WHALE_MARKER_MAP['default'];
+};
+
+export const getAllWhaleMarkerPaths = (): string[] => {
+    const allPaths = Object.values(WHALE_MARKER_MAP);
+    allPaths.push(VISITED_WHALE_MARKER);
+    return allPaths;
 };
 
 export const getCategoryIcon = (category: string): string => {
@@ -36,13 +55,9 @@ export const getCategoryIcon = (category: string): string => {
         case '문화관광': return '🎭';
         case '자연관광': return '🌲';
         case '역사관광': return '🏛️';
-        case '쇼핑': return '🛍️';
-        case '숙박': return '🏨';
         case '체험관광': return '📸';
         case '레저스포츠': return '⚡';
-        case '음식': return '🍽️';
-        case '추천코스': return '🗺️';
-        case '축제/공연/행사': return '🎪';
+        case '시장': return '🏪';
         default: return '📍';
     }
 };
