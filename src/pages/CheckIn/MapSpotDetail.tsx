@@ -129,6 +129,7 @@ const MapSpotDetail: React.FC = () => {
                     imageArray = [items];
                 }
 
+                // API 이미지들을 형식에 맞게 변환
                 const formattedImages = imageArray.map((img: any) => ({
                     contentid: img.contentid,
                     originimgurl: img.originimgurl,
@@ -138,6 +139,7 @@ const MapSpotDetail: React.FC = () => {
                     serialnum: img.serialnum || "1"
                 }));
 
+                // 기존 이미지들에 새로운 이미지만 추가 (중복 제거)
                 setSpotImages(currentImages => {
                     const newImages = formattedImages.filter(newImg =>
                         !currentImages.some(existingImg =>
@@ -145,9 +147,11 @@ const MapSpotDetail: React.FC = () => {
                         )
                     );
 
+                    // 기존 이미지 + 새로운 이미지
                     return [...currentImages, ...newImages];
                 });
 
+                // 새로운 이미지들만 프리로딩
                 formattedImages.forEach((image: any) => {
                     const img = new Image();
                     img.src = image.originimgurl;
@@ -155,6 +159,7 @@ const MapSpotDetail: React.FC = () => {
             }
         } catch (err) {
             console.error("이미지 가져오기 실패:", err)
+            // 에러 발생해도 기존 이미지는 유지
         }
     }
 
@@ -189,6 +194,7 @@ const MapSpotDetail: React.FC = () => {
                 const spotData = items[0];
                 setSpotDetail(spotData)
 
+                // firstimage가 있으면 즉시 이미지 상태에 설정
                 if (spotData.firstimage) {
                     setSpotImages([{
                         contentid: spotData.contentid,
@@ -260,6 +266,7 @@ const MapSpotDetail: React.FC = () => {
                         parking: "무료 주차장 있음",
                         description: "설명"
                     })
+                    // 테스트 모드에서도 기본 이미지 설정
                     if (mockDetail.firstimage) {
                         setSpotImages([{
                             originimgurl: mockDetail.firstimage,
@@ -287,6 +294,7 @@ const MapSpotDetail: React.FC = () => {
     useEffect(() => {
         if (spotDetail) {
             fetchSpotIntro()
+            // spotDetail이 설정된 후 약간의 딜레이를 두고 추가 이미지 가져오기
             setTimeout(() => {
                 fetchSpotImages()
             }, 100);
@@ -295,10 +303,12 @@ const MapSpotDetail: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">관광지 정보를 불러오는 중...</p>
+            <div className="max-w-md mx-auto">
+                <div className="min-h-screen bg-white flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p className="text-gray-600">관광지 정보를 불러오는 중...</p>
+                    </div>
                 </div>
             </div>
         )
@@ -306,200 +316,204 @@ const MapSpotDetail: React.FC = () => {
 
     if (error || !spotDetail) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="text-center px-4">
-                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                    <h2 className="text-xl font-bold text-gray-800 mb-2">{error || "관광지를 찾을 수 없습니다"}</h2>
-                    <button
-                        onClick={() => navigate("/map")}
-                        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                        지도로 돌아가기
-                    </button>
+            <div className="max-w-md mx-auto">
+                <div className="min-h-screen bg-white flex items-center justify-center">
+                    <div className="text-center px-4">
+                        <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">{error || "관광지를 찾을 수 없습니다"}</h2>
+                        <button
+                            onClick={() => navigate("/map")}
+                            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                            지도로 돌아가기
+                        </button>
+                    </div>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* 뒤로가기 버튼 */}
-            <div className="fixed top-4 left-4 z-50">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="bg-black/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-black/30 transition-colors"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                </button>
-            </div>
-
-            {/* 메인 이미지 섹션 */}
-            <section className="relative h-64">
-                {spotImages.length > 0 ? (
-                    <div className="w-full h-64">
-                        <ImageCarousel images={spotImages} height="h-64" simple = {true} />
-                    </div>
-                ) : spotDetail.firstimage ? (
-                    <div
-                        className="w-full h-full bg-cover bg-center bg-no-repeat"
-                        style={{
-                            backgroundImage: `url(${spotDetail.firstimage})`
-                        }}
-                    />
-                ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
-                        <Camera className="w-16 h-16 text-gray-400" />
-                    </div>
-                )}
-            </section>
-
-            {/* 상세 정보 섹션 */}
-            <div className="px-4 py-8 space-y-6">
-                {/* 관광지 정보 타이틀 */}
-                <div className="text-center mb-6">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">
-                        {spotDetail.title}
-                    </h2>
-                    <div className="w-20 h-1 bg-gray-800 mx-auto rounded-full"></div>
+        <div className="max-w-md mx-auto">
+            <div className="min-h-screen bg-white">
+                {/* 뒤로가기 버튼 */}
+                <div className="fixed top-4 left-4 z-50">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="bg-black/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-black/30 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                    </button>
                 </div>
 
-                {/* 관광지 소개 */}
-                {spotDetail.overview && (
+                {/* 메인 이미지 섹션 */}
+                <section className="relative h-64">
+                    {spotImages.length > 0 ? (
+                        <div className="w-full h-64">
+                            <ImageCarousel images={spotImages} height="h-64" simple = {true} />
+                        </div>
+                    ) : spotDetail.firstimage ? (
+                        <div
+                            className="w-full h-full bg-cover bg-center bg-no-repeat"
+                            style={{
+                                backgroundImage: `url(${spotDetail.firstimage})`
+                            }}
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
+                            <Camera className="w-16 h-16 text-gray-400" />
+                        </div>
+                    )}
+                </section>
+
+                {/* 상세 정보 섹션 */}
+                <div className="px-4 py-8 space-y-6">
+                    {/* 관광지 정보 타이틀 */}
+                    <div className="text-center mb-6">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-3 text-gray-800">
+                            {spotDetail.title}
+                        </h2>
+                        <div className="w-20 h-1 bg-gray-800 mx-auto rounded-full"></div>
+                    </div>
+
+                    {/* 관광지 소개 */}
+                    {spotDetail.overview && (
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <h3 className="text-2xl font-bold mb-4 text-gray-800">관광지소개</h3>
+                            <div className="text-base leading-relaxed text-gray-700 whitespace-pre-line">
+                                {formatContentWithLineBreaks(spotDetail.overview)}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 기본 정보 */}
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <h3 className="text-2xl font-bold mb-4 text-gray-800">관광지소개</h3>
-                        <div className="text-base leading-relaxed text-gray-700 whitespace-pre-line">
-                            {formatContentWithLineBreaks(spotDetail.overview)}
+                        <h3 className="text-2xl font-bold mb-4 text-gray-800">기본 정보</h3>
+                        <div className="space-y-4">
+                            {spotDetail.addr1 && (
+                                <div className="flex items-start space-x-3">
+                                    <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">주소</p>
+                                        <div className="flex items-center">
+                                            <p className="text-base text-gray-700">{spotDetail.addr1}</p>
+                                            <CopyButton text={spotDetail.addr1} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {spotDetail.tel && (
+                                <div className="flex items-start space-x-3">
+                                    <Phone className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">연락처</p>
+                                        <div className="flex items-center">
+                                            <p className="text-base text-gray-700">{spotDetail.tel}</p>
+                                            <CopyButton text={spotDetail.tel} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {spotDetail.homepage && (
+                                <div className="flex items-start space-x-3">
+                                    <Globe className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">홈페이지</p>
+                                        <a
+                                            href={spotDetail.homepage.replace(/<[^>]*>/g, "")}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-base text-blue-600 hover:text-blue-800 underline"
+                                        >
+                                            홈페이지 방문
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 추가 정보들 */}
+                            {(spotIntro?.usetime || spotIntro?.usetimeculture || spotIntro?.opentimefood) && (
+                                <div className="flex items-start space-x-3">
+                                    <Clock className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">운영시간</p>
+                                        <p className="text-base text-gray-700 whitespace-pre-line">
+                                            {formatContentWithLineBreaks(
+                                                spotIntro?.usetime || spotIntro?.usetimeculture || spotIntro?.opentimefood || ""
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {spotIntro?.restdate && (
+                                <div className="flex items-start space-x-3">
+                                    <Calendar className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">휴무일</p>
+                                        <p className="text-base text-gray-700 whitespace-pre-line">
+                                            {formatContentWithLineBreaks(spotIntro.restdate)}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {(spotIntro?.parking || spotIntro?.parkingculture) && (
+                                <div className="flex items-start space-x-3">
+                                    <Coins className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">주차</p>
+                                        <p className="text-base text-gray-700 whitespace-pre-line">
+                                            {formatContentWithLineBreaks(spotIntro.parking || spotIntro.parkingculture || "")}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {spotIntro?.usefee && (
+                                <div className="flex items-start space-x-3">
+                                    <Coins className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-lg text-gray-800">이용요금</p>
+                                        <p className="text-base text-gray-700 whitespace-pre-line">
+                                            {formatContentWithLineBreaks(spotIntro.usefee)}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                )}
 
-                {/* 기본 정보 */}
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <h3 className="text-2xl font-bold mb-4 text-gray-800">기본 정보</h3>
-                    <div className="space-y-4">
-                        {spotDetail.addr1 && (
-                            <div className="flex items-start space-x-3">
-                                <MapPin className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">주소</p>
-                                    <div className="flex items-center">
-                                        <p className="text-base text-gray-700">{spotDetail.addr1}</p>
-                                        <CopyButton text={spotDetail.addr1} />
-                                    </div>
-                                </div>
+                    {/* 카카오 지도 섹션 */}
+                    {mapMarkers.length > 0 && (
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                            <h3 className="text-2xl font-bold mb-3 text-gray-800">관광지 위치</h3>
+                            <div className="h-64 rounded-lg overflow-hidden mb-3">
+                                <KakaoMap
+                                    center={mapCenter}
+                                    markers={mapMarkers}
+                                    height={256}
+                                    draggable={false}
+                                />
                             </div>
-                        )}
 
-                        {spotDetail.tel && (
-                            <div className="flex items-start space-x-3">
-                                <Phone className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">연락처</p>
-                                    <div className="flex items-center">
-                                        <p className="text-base text-gray-700">{spotDetail.tel}</p>
-                                        <CopyButton text={spotDetail.tel} />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {spotDetail.homepage && (
-                            <div className="flex items-start space-x-3">
-                                <Globe className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">홈페이지</p>
-                                    <a
-                                        href={spotDetail.homepage.replace(/<[^>]*>/g, "")}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-base text-blue-600 hover:text-blue-800 underline"
-                                    >
-                                        홈페이지 방문
-                                    </a>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 추가 정보들 */}
-                        {(spotIntro?.usetime || spotIntro?.usetimeculture || spotIntro?.opentimefood) && (
-                            <div className="flex items-start space-x-3">
-                                <Clock className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">운영시간</p>
-                                    <p className="text-base text-gray-700 whitespace-pre-line">
-                                        {formatContentWithLineBreaks(
-                                            spotIntro?.usetime || spotIntro?.usetimeculture || spotIntro?.opentimefood || ""
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {spotIntro?.restdate && (
-                            <div className="flex items-start space-x-3">
-                                <Calendar className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">휴무일</p>
-                                    <p className="text-base text-gray-700 whitespace-pre-line">
-                                        {formatContentWithLineBreaks(spotIntro.restdate)}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {(spotIntro?.parking || spotIntro?.parkingculture) && (
-                            <div className="flex items-start space-x-3">
-                                <Coins className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">주차</p>
-                                    <p className="text-base text-gray-700 whitespace-pre-line">
-                                        {formatContentWithLineBreaks(spotIntro.parking || spotIntro.parkingculture || "")}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {spotIntro?.usefee && (
-                            <div className="flex items-start space-x-3">
-                                <Coins className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-600" />
-                                <div className="flex-1">
-                                    <p className="font-semibold text-lg text-gray-800">이용요금</p>
-                                    <p className="text-base text-gray-700 whitespace-pre-line">
-                                        {formatContentWithLineBreaks(spotIntro.usefee)}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                            {/* 카카오 지도 길찾기 버튼 */}
+                            <button
+                                onClick={() => openKakaoMapNavigation(spotDetail.mapy, spotDetail.mapx)}
+                                className="w-full bg-[#FEE500] hover:bg-[#FDD800] text-black px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                            >
+                                <img
+                                    src={kakaoLogo}
+                                    alt="KakaoTalk"
+                                    className="w-5 h-5"
+                                />
+                                <span>카카오맵으로 길찾기</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
-
-                {/* 카카오 지도 섹션 */}
-                {mapMarkers.length > 0 && (
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <h3 className="text-2xl font-bold mb-3 text-gray-800">관광지 위치</h3>
-                        <div className="h-64 rounded-lg overflow-hidden mb-3">
-                            <KakaoMap
-                                center={mapCenter}
-                                markers={mapMarkers}
-                                height={256}
-                                draggable={false}
-                            />
-                        </div>
-
-                        {/* 카카오 지도 길찾기 버튼 */}
-                        <button
-                            onClick={() => openKakaoMapNavigation(spotDetail.mapy, spotDetail.mapx)}
-                            className="w-full bg-[#FEE500] hover:bg-[#FDD800] text-black px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-                        >
-                            <img
-                                src={kakaoLogo}
-                                alt="KakaoTalk"
-                                className="w-5 h-5"
-                            />
-                            <span>카카오맵으로 길찾기</span>
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     )
