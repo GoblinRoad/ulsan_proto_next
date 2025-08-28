@@ -17,16 +17,15 @@ function getCorsHeaders(origin: string | null) {
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     };
 
-    // 허용 도메인 체크
-    if (origin && allowedOrigins.some(o => origin.startsWith(o))) {
-        return { ...baseHeaders, "Access-Control-Allow-Origin": origin };
+    if (origin && allowedOrigins.includes(origin)) {
+        return { ...baseHeaders, "Access-Control-Allow-Origin": origin.split(",")[0].trim() };
     }
 
-    return { ...baseHeaders, "Access-Control-Allow-Origin": allowedOrigins[0] };
+    return { ...baseHeaders, "Access-Control-Allow-Origin": allowedOrigins[0] }; // 기본값
 }
 export async function OPTIONS(request: Request) {
     const origin = request.headers.get("origin");
-    return NextResponse.json({}, { headers: getCorsHeaders(origin) });
+    return new NextResponse(null, { status: 204, headers: getCorsHeaders(origin) });
 }
 
 export async function GET(request: NextRequest) {
