@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
                 data: data,
             })
         } else {
-            const { data, error } = await supabase.from("tour_spots").select("*").order("created_at", { ascending: false })
+            const { data, error } = await supabase.from("tourist_spots").select("*").order("created_at", { ascending: false })
 
             if (error) {
                 return NextResponse.json(
