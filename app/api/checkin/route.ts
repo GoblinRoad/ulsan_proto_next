@@ -1,8 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
-import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
-import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -35,16 +32,28 @@ export async function OPTIONS(request: Request) {
     return NextResponse.json({}, { headers: getCorsHeaders(origin) });
 }
 // 1️⃣ 사용자 인증
-async function getAuthUserId() {
-    const cookieStore = await cookies(); // ReadonlyRequestCookies (동기 객체)
-    const supabaseServerClient = createServerComponentClient({
-        cookies: (() => cookieStore) as unknown as () => Promise<ReadonlyRequestCookies>,
+async function getAuthUserIdFromHeader(request: Request) {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        throw new Error("인증 토큰이 필요합니다.");
+    }
+
+    const token = authHeader.replace("Bearer ", "").trim();
+
+    // Supabase 클라이언트에서 토큰으로 유저 확인
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+        global: { headers: { Authorization: `Bearer ${token}` } },
     });
 
-    const { data: { user }, error } = await supabaseServerClient.auth.getUser();
+    const {
+        data: { user },
+        error,
+    } = await supabaseClient.auth.getUser();
+
     if (error || !user) throw new Error("유저 인증 실패");
     return user.id;
 }
+
 
 // 2️⃣ 이미 체크인 확인
 async function checkExistingCheckIn(userId: string, spotId: string) {
@@ -122,7 +131,7 @@ export async function POST(request: Request) {
         }
 
         const location = JSON.parse(locationStr);
-        const authUserId = await getAuthUserId();
+        const authUserId = await getAuthUserIdFromHeader(request);
 
         if (!authUserId) return NextResponse.json({ success: false, message: "유저 인증 실패" }, { status: 401 });
 
