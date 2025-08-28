@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const allowedOrigins = [
-    "https://ulsan-proto-next.vercel.app",
+    "https://ulsantour.vercel.app",
     "http://localhost:5173",
 ];
 
