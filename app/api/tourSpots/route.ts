@@ -33,39 +33,21 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url)
         const contentId = searchParams.get("contentId")
-
-        if (contentId) {
-            const { data, error } = await supabase.from("tourist_spots").select("*").eq("id", contentId).single()
-
-            if (error) {
-                return NextResponse.json(
-                    { success: false, message: "관광지를 찾을 수 없습니다.", error: error.message },
-                    { status: 404 , headers: corsHeaders},
-                )
-            }
-
+        if (!contentId) {
             return NextResponse.json({
-                success: true,
-                data: data,
-            },
-                { headers: corsHeaders }
-            )
-        } else {
-            const { data, error } = await supabase.from("tourist_spots").select("*").order("created_at", { ascending: false })
-
-            if (error) {
-                return NextResponse.json(
-                    { success: false, message: "관광지 목록을 가져올 수 없습니다.", error: error.message },
-                    { status: 500 ,headers: corsHeaders },
-                )
-            }
-
-            return NextResponse.json({
-                success: true,
-                data: data || [],
-            },                { headers: corsHeaders }
-            )
+                success: false,
+                data: null,
+            }, {status: 400, headers: corsHeaders})
         }
+        const { data, error } = await supabase.from("tourist_spots").select("*").eq("id", contentId).single()
+
+        return NextResponse.json({
+            success: true,
+            data: data,
+        },
+            { headers: corsHeaders }
+        )
+
     } catch (error) {
         console.error("관광지 조회 오류:", error)
         return NextResponse.json(
