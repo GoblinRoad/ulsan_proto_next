@@ -6,14 +6,14 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://ulsantour.vercel.app:3000/:path*"
+      "destination": "https://ulsan-proto-next.vercel.app/:path*"
     }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://ulsantour.vercel.app" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://ulsan-proto-next.vercel.app" },
         { "key": "Access-Control-Allow-Methods", "value": "GET,POST, OPTIONS" },
         { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type" }
       ]

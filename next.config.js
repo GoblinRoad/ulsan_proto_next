@@ -19,7 +19,7 @@ const nextConfig = {
                 headers: [
                     {
                         key: "Access-Control-Allow-Origin",
-                        value: "https://ulsantour.vercel.app",
+                        value: "https://ulsan-proto-next.vercel.app",
                     },
                     {
                         key: "Access-Control-Allow-Methods",
