@@ -10,18 +10,17 @@ const allowedOrigins = [
 ];
 
 function getCorsHeaders(origin: string | null) {
-    if (origin && allowedOrigins.includes(origin)) {
-        return {
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        };
-    }
-    return {
-        "Access-Control-Allow-Origin": allowedOrigins[0], // 기본값
+    const baseHeaders = {
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     };
+
+    // 허용 도메인 체크
+    if (origin && allowedOrigins.some(o => origin.startsWith(o))) {
+        return { ...baseHeaders, "Access-Control-Allow-Origin": origin };
+    }
+
+    return { ...baseHeaders, "Access-Control-Allow-Origin": allowedOrigins[0] };
 }
 
 // -------------------------------
