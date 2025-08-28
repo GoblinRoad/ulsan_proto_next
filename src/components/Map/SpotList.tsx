@@ -111,20 +111,12 @@ const SpotList: React.FC<SpotListProps> = ({ spots}) => {
         return "text-emerald-600 bg-emerald-50"
       case "역사관광":
         return "text-violet-600 bg-violet-50"
-      case "쇼핑":
-        return "text-emerald-600 bg-emerald-50"
-      case "숙박":
-        return "text-amber-600 bg-amber-50"
       case "체험관광":
-        return "text-pink-600 bg-pink-50"
+        return "text-orange-600 bg-orange-50"
       case "레저스포츠":
         return "text-red-600 bg-red-50"
-      case "음식":
-        return "text-orange-600 bg-orange-50"
-      case "추천코스":
-        return "text-violet-600 bg-violet-50"
-      case "축제/공연/행사":
-        return "text-red-600 bg-red-50"
+      case "시장":
+        return "text-yellow-600 bg-yellow-50"
       default:
         return "text-gray-600 bg-gray-50"
     }
@@ -248,7 +240,7 @@ const SpotList: React.FC<SpotListProps> = ({ spots}) => {
                     ) : (
                         <div className="flex items-center space-x-2">
                           <Link
-                              to={`/spot/${spot.id}`}
+                              to={`/checkin/spot/${spot.id}`}
                               className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-gray-200 transition-colors"
                           >
                             상세보기

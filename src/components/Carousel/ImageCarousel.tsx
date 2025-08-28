@@ -6,9 +6,10 @@ import ImageModal from '../Modals/ImageModal';
 interface ImageCarouselProps {
   images: FestivalImage[] | SpotImage[];
   height?: string;
+  simple?: boolean;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, height = "h-64" }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, height = "h-64", simple = false }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -218,7 +219,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, height = "h-64" }
       )}
 
       {/* 썸네일 인디케이터 */}
-      {images.length > 1 && (
+      {images.length > 1 && !simple && (
         <div 
           ref={thumbnailContainerRef}
           className="flex justify-start mt-4 space-x-2 overflow-x-auto scrollbar-hide px-4 pb-2"

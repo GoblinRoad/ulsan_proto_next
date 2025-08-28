@@ -13,9 +13,9 @@ const FilterTabs: React.FC<FilterTabsProps> = ({ filter, setFilter, categoryCoun
     { key: '문화관광' as const, label: '문화관광', count: categoryCounts.문화관광, color: 'bg-blue-500' },
     { key: '자연관광' as const, label: '자연관광', count: categoryCounts.자연관광, color: 'bg-emerald-500' },
     { key: '역사관광' as const, label: '역사관광', count: categoryCounts.역사관광, color: 'bg-violet-500' },
-    { key: '체험관광' as const, label: '체험관광', count: categoryCounts.체험관광, color: 'bg-pink-500' },
+    { key: '체험관광' as const, label: '체험관광', count: categoryCounts.체험관광, color: 'bg-orange-500' },
     { key: '레저스포츠' as const, label: '레저스포츠', count: categoryCounts.레저스포츠, color: 'bg-red-500' },
-    { key: '시장' as const, label: '시장', count: categoryCounts.시장, color: 'bg-emerald-500' },
+    { key: '시장' as const, label: '시장', count: categoryCounts.시장, color: 'bg-amber-500' },
   ];
 
   return (
