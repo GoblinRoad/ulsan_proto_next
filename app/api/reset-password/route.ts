@@ -9,6 +9,7 @@ const allowedOrigins = [
   "https://ulsan-proto-next.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://ulsantour.vercel.app",
 ];
 
 function getCorsHeaders(origin: string | null) {
