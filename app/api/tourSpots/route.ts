@@ -6,7 +6,30 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+const allowedOrigins = [
+    "https://ulsantour.vercel.app",
+    "http://localhost:5173",
+];
+
+function getCorsHeaders(origin: string | null) {
+    if (origin && allowedOrigins.includes(origin)) {
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        };
+    }
+    return {
+        "Access-Control-Allow-Origin": allowedOrigins[0], // 기본값
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
+}
+
 export async function GET(request: NextRequest) {
+    const origin = request.headers.get("origin");
+    const corsHeaders = getCorsHeaders(origin);
+
     try {
         const { searchParams } = new URL(request.url)
         const contentId = searchParams.get("contentId")
@@ -17,28 +40,31 @@ export async function GET(request: NextRequest) {
             if (error) {
                 return NextResponse.json(
                     { success: false, message: "관광지를 찾을 수 없습니다.", error: error.message },
-                    { status: 404 },
+                    { status: 404 , headers: corsHeaders},
                 )
             }
 
             return NextResponse.json({
                 success: true,
                 data: data,
-            })
+            },
+                { headers: corsHeaders }
+            )
         } else {
             const { data, error } = await supabase.from("tourist_spots").select("*").order("created_at", { ascending: false })
 
             if (error) {
                 return NextResponse.json(
                     { success: false, message: "관광지 목록을 가져올 수 없습니다.", error: error.message },
-                    { status: 500 },
+                    { status: 500 ,headers: corsHeaders },
                 )
             }
 
             return NextResponse.json({
                 success: true,
                 data: data || [],
-            })
+            },                { headers: corsHeaders }
+            )
         }
     } catch (error) {
         console.error("관광지 조회 오류:", error)
@@ -48,7 +74,7 @@ export async function GET(request: NextRequest) {
                 message: "관광지 조회에 실패했습니다.",
                 error: error instanceof Error ? error.message : "UNKNOWN_ERROR",
             },
-            { status: 500 },
+            { status: 500 , headers: corsHeaders },
         )
     }
 }
