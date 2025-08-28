@@ -25,6 +25,15 @@ function getCorsHeaders(origin: string | null) {
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     };
 }
+export async function OPTIONS(request: NextRequest) {
+    const origin = request.headers.get("origin")
+    const corsHeaders = getCorsHeaders(origin)
+
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders,
+    })
+}
 
 export async function GET(request: NextRequest) {
     const origin = request.headers.get("origin");

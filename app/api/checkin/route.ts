@@ -30,9 +30,14 @@ function getCorsHeaders(origin: string | null) {
 // -------------------------------
 // 🔹 OPTIONS (preflight)
 // -------------------------------
-export async function OPTIONS(req: Request) {
-    const origin = req.headers.get("origin");
-    return NextResponse.json({}, { headers: getCorsHeaders(origin) });
+export async function OPTIONS(request: NextRequest) {
+    const origin = request.headers.get("origin")
+    const corsHeaders = getCorsHeaders(origin)
+
+    return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders,
+    })
 }
 // 1️⃣ 사용자 인증
 async function getAuthUserId() {
