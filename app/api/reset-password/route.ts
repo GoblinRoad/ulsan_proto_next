@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (listError) {
       console.error("사용자 목록 조회 오류:", listError);
       return NextResponse.json(
-        { success: false, message: "서버 오류가 발생했습니다." },
+        { success: false, message: "목록 조회 관련 서버 오류가 발생했습니다." },
         { status: 500, headers: getCorsHeaders(origin) }
       );
     }
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("비밀번호 재설정 API 오류:", error);
     return NextResponse.json(
-      { success: false, message: "서버 오류가 발생했습니다." },
+      { success: false, message: "재설정 서버 오류가 발생했습니다." },
       { status: 500, headers: getCorsHeaders(origin) }
     );
   }
