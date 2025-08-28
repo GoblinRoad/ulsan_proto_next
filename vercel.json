@@ -13,7 +13,7 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://ulsantour.vercel.app" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://ulsan-proto-next.vercel.app" },
         { "key": "Access-Control-Allow-Methods", "value": "GET,POST, OPTIONS" },
         { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type" }
       ]
