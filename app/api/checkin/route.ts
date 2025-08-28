@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import {createServerComponentClient} from "@supabase/auth-helpers-nextjs";
+import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -35,17 +36,13 @@ export async function OPTIONS(req: Request) {
 }
 // 1️⃣ 사용자 인증
 async function getAuthUserId() {
-    const supabase = createServerComponentClient({ cookies });
+    const cookieStore = await cookies(); // ReadonlyRequestCookies (동기 객체)
+    const supabaseServerClient = createServerComponentClient({
+        cookies: (() => cookieStore) as unknown as () => Promise<ReadonlyRequestCookies>,
+    });
 
-    const {
-        data: { user },
-        error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-        throw new Error("유저 인증 실패");
-    }
-
+    const { data: { user }, error } = await supabaseServerClient.auth.getUser();
+    if (error || !user) throw new Error("유저 인증 실패");
     return user.id;
 }
 

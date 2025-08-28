@@ -1,12 +1,8 @@
 {
   "files": [],
   "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
     "target": "ES2017",
@@ -27,11 +23,16 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "plugins": [
-      {
-        "name": "next"
-      }
+      { "name": "next" }
     ],
-    "strictNullChecks": true
+    "strictNullChecks": true,
+
+    /* 추가할 부분 */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "#/*": ["public/*"]
+    }
   },
   "include": [
     "next-env.d.ts",
