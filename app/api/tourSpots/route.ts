@@ -40,7 +40,16 @@ export async function GET(request: NextRequest) {
             }, {status: 400, headers: corsHeaders})
         }
         const { data, error } = await supabase.from("tourist_spots").select("*").eq("id", contentId).single()
-
+        if (error) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "관광지 조회에 실패했습니다.",
+                    error: error.message,
+                },
+                { status: 500 , headers: corsHeaders },
+            )
+        }
         return NextResponse.json({
             success: true,
             data: data,
