@@ -35,8 +35,17 @@ export async function OPTIONS(req: Request) {
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
 
+  console.log("=== Reset Password API 시작 ===");
+  console.log("환경변수 확인:", {
+    supabaseUrl: !!supabaseUrl,
+    supabaseServiceKey: !!supabaseServiceKey,
+    urlLength: supabaseUrl?.length,
+    keyLength: supabaseServiceKey?.length,
+  });
+
   try {
     const { email } = await request.json();
+    console.log("요청 이메일:", email);
 
     if (!email) {
       return NextResponse.json(
@@ -55,10 +64,17 @@ export async function POST(request: NextRequest) {
     }
 
     // 서비스 역할 키로 사용자 목록 조회
+    console.log("Supabase 사용자 목록 조회 시작...");
     const {
       data: { users },
       error: listError,
     } = await supabase.auth.admin.listUsers();
+
+    console.log("사용자 목록 조회 결과:", {
+      usersCount: users?.length || 0,
+      hasError: !!listError,
+      errorDetails: listError,
+    });
 
     if (listError) {
       console.error("사용자 목록 조회 오류:", listError);
@@ -69,7 +85,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 해당 이메일로 가입된 사용자 찾기
+    console.log("이메일로 사용자 검색:", email);
     const user = users.find((u) => u.email === email);
+    console.log("찾은 사용자:", user ? "존재함" : "없음");
 
     if (!user) {
       return NextResponse.json(
